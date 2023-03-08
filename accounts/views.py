@@ -4,9 +4,34 @@ from django.contrib.auth import authenticate, logout as auth_logout, login as au
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.views.generic.edit import CreateView
+from rest_framework.generics import CreateAPIView
 from accounts.models import User
+from accounts.serializers import UserDetailSerializer
 
 # Create your views here.
+class SignUpView1(CreateAPIView):
+    serializer_class = UserDetailSerializer
+    def get_object(self, request):
+        return request.user
+
+    def get(self, request):
+        return request.user
+        
+    def post(self, request):
+        if User.objects.filter(username = request.POST['username']).exists():
+            return HttpResponse('Username is already taken')
+        if request.POST['password1'] != request.POST['password2']:
+            return HttpResponse('Passwords do not match!')
+        
+        try:
+            validate_email(request.POST['email'])
+        except ValidationError:
+            if (request.POST['email'] != ''):
+                return HttpResponse('Enter a valid email address')
+    
+        user = User.objects.create_user(username=request.POST['username'], password=request.POST['password1'], email=request.POST['email'], first_name=request.POST['first_name'], last_name=request.POST['last_name'], phone_num=request.POST['phone_num'])
+        user.save()
+        return HttpResponseRedirect(f'/accounts/login')
 
 def SignUpView(request):
     if request.method == 'GET':
