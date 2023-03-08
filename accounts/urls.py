@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-from django.urls import path
-
-urlpatterns = []
-=======
 """p2 URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
@@ -28,4 +23,3 @@ urlpatterns = [
     path('logout/', LogoutView),
     path('profile/edit/', EditProfileView),
 ]
->>>>>>> User-Registration-Feature
