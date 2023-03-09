@@ -1,3 +1,7 @@
 from django.urls import path
 
-urlpatterns = []
+from recipes.views import AllRecipes
+
+urlpatterns = [
+    path('all-recipes/', AllRecipes.as_view()),
+]
