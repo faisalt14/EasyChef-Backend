@@ -1,7 +1,7 @@
 # Create your models here.
 import datetime
 from django.db import models
-from django.contrib.auth.models import User
+from accounts.models import User
 
 class RecipeModel(models.Model):
     """
