@@ -28,14 +28,14 @@ class RecipeModel(models.Model):
     Foreign Keys To Keep Track Of:
       - StepModel for steps
       - RecipeMediaModel for the displayed images/videos at top
-      - QuantityModel for ingredients and Quantities
+      - IngredientModel for ingredients and Quantities
       - ReviewModel for the review
       - 'self' for “based on” recipes
     """
     # change this to reference custom UserModel
     user_id = models.ForeignKey(User, on_delete=models.CASCADE, null=False, default=get_default_user_id, related_name="recipes")
     name = models.CharField(max_length=100)
-    based_on = models.ForeignKey('self', on_delete=models.CASCADE, null=True, related_name="derived_recipe")
+    based_on = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name="derived_recipe")
     total_reviews = models.IntegerField(default=0)
     total_likes = models.IntegerField(default=0)
     total_favs = models.IntegerField(default=0)
@@ -84,7 +84,7 @@ class StepModel(models.Model):
 
 class StepMediaModel(models.Model):
     step_id = models.ForeignKey("StepModel", on_delete=models.CASCADE, related_name="media")
-    media = models.FileField(upload_to="step-media/")
+    media = models.FileField(upload_to="step-media/", blank=True)
 
     def __str__(self):
           return f"Media {self.id} for Step {self.step_id.id}"

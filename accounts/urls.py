@@ -15,11 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from accounts.views import SignUpView, LoginView, LogoutView, EditProfileView, SignUpView1
+from accounts.views import SignUpView, LoginView, LogoutView, EditProfileView
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 urlpatterns = [
-    path('signup/', SignUpView1.as_view()),
-    path('login/', LoginView),
-    path('logout/', LogoutView),
-    path('profile/edit/', EditProfileView),
+    path('signup/', SignUpView.as_view()),
+    path('login/', LoginView.as_view()),
+    path('logout/', LogoutView.as_view()),
+    path('profile/edit/', EditProfileView.as_view()),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
 ]
