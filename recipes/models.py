@@ -45,7 +45,7 @@ class RecipeModel(models.Model):
           (1, 'Medium'),
           (2, 'Hard'),
       ]
-    meal_choices = [(0, "Breakfast"), (1, "Lunch"), (3, "Desserts"), (4, "Snacks"), (5, "Other")]
+    meal_choices = [(0, "Breakfast"), (1, "Lunch"), (2, "Dinner"), (3, "Desserts"), (4, "Snacks"), (5, "Other")]
     diet_choices = [(0, "Vegan"), (1, "Vegetarian"), (2, "Gluten-Free"), (3, "Halal"), (4, "Kosher"), (5, "None") ]
     cuisine_choices = [(0, "African"), (1, "Carribean"), (2, "East Asian"), (3, "European"), (4, "French"), (5, "Italian"), (6, "Middle-Eastern"), (7, "North American"),
     (8, "Oceanic"), (9, "Russian"), (10, "Spanish"), (11, "South American"),  (12, "South Asian"), (13, "Other")]
@@ -61,7 +61,7 @@ class RecipeModel(models.Model):
         return self.name
 
 class RecipeMediaModel(models.Model):
-    recipe_id = models.ForeignKey("RecipeModel", on_delete=models.CASCADE, related_name="media", default=get_default_recipe_id)
+    recipe_id = models.ForeignKey(RecipeModel, on_delete=models.CASCADE, related_name="media", blank=True, null=True)
     media = models.FileField(upload_to="recipe-media/")
 
     def __str__(self):
@@ -73,7 +73,7 @@ class StepModel(models.Model):
     Foreign Keys To Keep Track Of:
       - StepMediaModel for the step it applies to
     """
-    recipe_id = models.ForeignKey("RecipeModel", on_delete=models.CASCADE, related_name="steps", default=get_default_recipe_id)
+    recipe_id = models.ForeignKey("RecipeModel", on_delete=models.CASCADE, related_name="steps", default=None, blank=True, null=True)
     step_num = models.PositiveIntegerField()
     cooking_time = models.DurationField()
     prep_time = models.DurationField()
@@ -95,7 +95,7 @@ class IngredientModel(models.Model):
     Foreign Key To Keep Track Of:
       - RecipeModel for search filtering
     """
-    recipe_id= models.ForeignKey('RecipeModel', on_delete=models.CASCADE, related_name='ingredients', default=get_default_recipe_id)
+    recipe_id= models.ForeignKey('RecipeModel', on_delete=models.CASCADE, related_name='ingredients', default=None, blank=True, null=True)
     name = models.CharField(max_length=100)
     quantity = models.PositiveIntegerField(default=0)
     unit = models.CharField(max_length=20, default="cups")
