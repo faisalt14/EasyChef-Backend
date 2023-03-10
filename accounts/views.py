@@ -1,12 +1,11 @@
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseNotFound, HttpResponseNotAllowed, HttpResponseRedirect, JsonResponse
 from django.contrib.auth import authenticate, logout as auth_logout, login as auth_login, update_session_auth_hash
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
-from django.views.generic.edit import CreateView
 from rest_framework.generics import CreateAPIView
-from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from accounts.models import User
 from accounts.serializers import UserDetailSerializer, UserLoginSerializer, UserEditSerializer
 
@@ -48,7 +47,7 @@ class LogoutView(APIView):
         return Response({'message': 'logged out'}, status=200)
 
 class EditProfileView(APIView):
-
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         if request.user.is_authenticated == False:
             return Response({'message': 'Not logged in'}, status=401)
