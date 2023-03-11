@@ -29,10 +29,10 @@ class SignUpView(CreateAPIView):
         errors = ""
 
         if not request.data.get('password2'):
-            errors = errors + 'password2, '
+            errors = errors + ' [password2 - This Field Is Required.]'
         for error in serializer.errors:
-            errors = errors + error + ', '
-        return Response({'message': 'Missing fields. The following fields are required: ' + errors}, status=400)
+            errors = errors + ' [' + error + ' - ' + serializer.errors[error][0].title() + ']'
+        return Response({'message': 'Errors in request:' + errors}, status=400)
 
 class LoginView(APIView):
     def post(self, request):
@@ -87,4 +87,10 @@ class EditProfileView(APIView):
             update_session_auth_hash(request, request.user)
             return Response({'message': 'edited user '+ request.user.username + "'s information"}, status=200)
         print(serializer.errors)
-        return Response({'message': 'serializer is invalid!'}, status=400)
+        Email_Error = ''
+        try:
+            if serializer.errors['email']:
+                Email_Error = ' ' + serializer.errors['email'][0].title()
+        except:
+            pass
+        return Response({'message': 'serializer is invalid!' + Email_Error}, status=400)
