@@ -11,4 +11,4 @@ class User(AbstractUser):
     - ShoppingRecipeModel for recipes in the shopping cart of the user
     '''
     phone_num = models.CharField(max_length = 100, default="", null=True, blank=True)
-    avatar = models.ImageField(upload_to="avatars/", null=True, blank=True)
+    avatar = models.ImageField(upload_to="avatars/", null=True, blank=True, default='avatars/default.png')
