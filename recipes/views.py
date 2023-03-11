@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from rest_framework.generics import RetrieveAPIView, CreateAPIView, ListAPIView, DestroyAPIView, RetrieveUpdateAPIView
 from rest_framework.views import APIView
-import datetime
 from datetime import timedelta
+from django.utils import timezone
+
 
 from recipes.models import RecipeModel, IngredientModel, StepModel, StepMediaModel, RecipeMediaModel
 from rest_framework.response import Response
@@ -12,6 +13,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from accounts.models import User
 from accounts.serializers import UserDetailSerializer
+import json
 
 # Create your views here.
 
@@ -36,7 +38,7 @@ class RemixRecipeView(APIView):
         new_recipe.pk = None
         new_recipe.user_id = request.user
         new_recipe.based_on = original_recipe
-        new_recipe.published_time = datetime.datetime.now()
+        new_recipe.published_time = timezone.now()
         new_recipe.save()
 
         # Copy over foreign key relations for StepModel
@@ -88,17 +90,21 @@ class RemixRecipeView(APIView):
                 new_recipe.save()
 
             if key == "ingredients":     
-                ingredients_list = [int(x.strip()) for x in value.split(",")]
+                ingredients_list = json.loads(value)
                 ingredient_ids = []
                 # Create Ingredient instances
-                for ingredient_data in ingredients_list:
-                    ingredient_base = get_object_or_404(IngredientModel, id=ingredient_data)
+                for ingredient_id, data in ingredients_list.items():
+                    quantity = data[0]
+                    unit = data[1]
+                    ingredient_base = get_object_or_404(IngredientModel, id=ingredient_id)
                     copied_ingredient = IngredientModel()
                     copied_ingredient.recipe_id = new_recipe
 
-                    copied_ingredient.quantity = int(ingredient_base.quantity / original_recipe.servings_num * new_recipe.servings_num)
+                    copied_ingredient.quantity = int(int(ingredient_base.quantity) / int(original_recipe.servings_num) * int(new_recipe.servings_num))
 
                     copied_ingredient.unit = unit
+                    copied_ingredient.save()
+
                     ingredient_ids.append(copied_ingredient)
 
                 new_recipe.ingredients.set(ingredient_ids)
@@ -158,17 +164,31 @@ class CreateRecipeView(RetrieveUpdateAPIView, CreateAPIView):
         if steps_list:
             steps_list = [int(x.strip()) for x in steps_list.split(",")]
         if ingredients_list:
-            ingredients_list = [int(x.strip()) for x in ingredients_list.split(",")]
+            ingredients_list = json.loads(ingredients_list)
+            # ingredients_list = [int(x.strip()) for x in ingredients_list.split(",")]
         if media_list:
             media_list = [int(x.strip()) for x in media_list.split(",")]
         
         recipe_data = request.data.copy()
-        recipe_data['published_time'] = datetime.datetime.now()
-        recipe_serializer = RecipeSerializer(data=recipe_data, partial=True)
+        recipe_data['published_time'] = timezone.now()
 
-        
+        # Set default values for the fields 
+        required_fields = ['cooking_time', 'prep_time', 'name', 'difficulty', 'meal', 'diet', 'cuisine', 'servings_num', 'steps', 'media', 'ingredients']
+        errors = []
+        for field in required_fields:
+            if request.data.get(field, '') == '':
+                errors.append(f"{field} is required.")
+
+        # Return errors if any required fields are empty
+        if errors:
+            error_message = " ".join(errors)
+            return Response({"error": error_message}, status=status.HTTP_400_BAD_REQUEST)
+
+
+        recipe_serializer = RecipeSerializer(data=recipe_data, partial=True)
         recipe_serializer.is_valid(raise_exception=True)
         recipe = recipe_serializer.save()
+
         # # Create Step instances
         total_cook = timedelta(hours=0, minutes=0)
         total_prep = timedelta(hours=0, minutes=0)
@@ -182,16 +202,15 @@ class CreateRecipeView(RetrieveUpdateAPIView, CreateAPIView):
             step_ids.append(base_step)
             
         # # Create Ingredient instances
-        for ingredient_data in ingredients_list:
-            ingredient_base = get_object_or_404(IngredientModel, id=ingredient_data)
+        for ingredient_id, ingredient_data in ingredients_list.items():
+            ingredient_base = get_object_or_404(IngredientModel, id=int(ingredient_id))
 
             # make a copy of the base ingredient - base ingredient has null
             copied_ingredient = IngredientModel()
             copied_ingredient.name = ingredient_base.name
             copied_ingredient.recipe_id = recipe
-            copied_ingredient.quantity = ingredient_base.quantity
-            copied_ingredient.unit = ingredient_base.unit
-
+            copied_ingredient.quantity = ingredient_data[0]
+            copied_ingredient.unit = ingredient_data[1]
             copied_ingredient.save()
             ingredient_ids.append(copied_ingredient)
 

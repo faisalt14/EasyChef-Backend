@@ -97,7 +97,12 @@ class RecipeSerializer(serializers.ModelSerializer):
     ingredients = IngredientSerializer(many=True, required=True)
     interactions = InteractionSerializer(many=True, required=False)
 
-
+    name = serializers.CharField(required=True)
+    difficulty = serializers.IntegerField(required=True, allow_null=False)
+    meal = serializers.IntegerField(required=True, allow_null=False)
+    diet = serializers.IntegerField(required=True, allow_null=False)
+    cuisine = serializers.IntegerField(required=True, allow_null=False)
+    servings_num = serializers.IntegerField(required=True, allow_null=False)
 
     class Meta:
         model = RecipeModel
@@ -109,5 +114,6 @@ class RecipeSerializer(serializers.ModelSerializer):
             'media': {'write_only': True}, 
             'steps': {'write_only': True},
             'ingredients': {'write_only': True},
-            'interactions': {'write_only': True}
+            'interactions': {'write_only': True},
+            'name': {'required': True},
         }

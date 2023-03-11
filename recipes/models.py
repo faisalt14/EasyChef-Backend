@@ -65,7 +65,8 @@ class RecipeModel(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        self.total_time = self.cooking_time + self.prep_time
+        if self.cooking_time != None and self.prep_time != None:
+            self.total_time = self.cooking_time + self.prep_time
         self.calculated_total_time = self.calculated_cook_time + self.calculated_prep_time
         super().save(*args, **kwargs)
 
