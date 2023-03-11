@@ -99,8 +99,9 @@ class RemixRecipeView(APIView):
                     ingredient_base = get_object_or_404(IngredientModel, id=ingredient_id)
                     copied_ingredient = IngredientModel()
                     copied_ingredient.recipe_id = new_recipe
-
-                    copied_ingredient.quantity = int(int(ingredient_base.quantity) / int(original_recipe.servings_num) * int(new_recipe.servings_num))
+                    
+                    copied_ingredient.quantity = quantity
+                    #copied_ingredient.quantity = int(int(ingredient_base.quantity) / int(original_recipe.servings_num) * int(new_recipe.servings_num))
 
                     copied_ingredient.unit = unit
                     copied_ingredient.save()
@@ -229,13 +230,13 @@ class CreateRecipeView(RetrieveUpdateAPIView, CreateAPIView):
         recipe.calculated_cook_time = total_cook
         # we need to calculate the total cooking time, prep_time
 
-        servings_num = request.data.get('servings_num')
-        if servings_num:
-            recipe_ingredient_instances = recipe.ingredients.all()
-            for ingredient_instance in recipe_ingredient_instances:
-                new_quantity = int(ingredient_instance.quantity) * int(servings_num)
-                ingredient_instance.quantity = int(new_quantity)
-                ingredient_instance.save(update_fields=['quantity'])
+        #servings_num = request.data.get('servings_num')
+        #if servings_num:
+        #    recipe_ingredient_instances = recipe.ingredients.all()
+        #    for ingredient_instance in recipe_ingredient_instances:
+        #        new_quantity = int(ingredient_instance.quantity) * int(servings_num)
+        #        ingredient_instance.quantity = int(new_quantity)
+        #        ingredient_instance.save(update_fields=['quantity'])
 
         recipe.save()
 
@@ -251,9 +252,9 @@ class CreateRecipeView(RetrieveUpdateAPIView, CreateAPIView):
             return Response('Forbidden', status=403)
 
         # calculate the ratio of new servings to old servings
-        old_servings = instance.servings_num
-        new_servings = request.data.get('servings_num', old_servings)
-        ratio = int(new_servings) / int(old_servings)
+        #old_servings = instance.servings_num
+        #new_servings = request.data.get('servings_num', old_servings)
+        #ratio = int(new_servings) / int(old_servings)
 
         # update the instance from the serializer and save it to the database
         # partial = True allows us to retain data that was already there (hence the editing)
@@ -262,14 +263,14 @@ class CreateRecipeView(RetrieveUpdateAPIView, CreateAPIView):
         recipe = serializer.save(user=self.request.user)
 
         # adjust ingredient quantities based on the new ratio
-        for ingredient_instance in recipe.ingredients.all():
+        #for ingredient_instance in recipe.ingredients.all():
             # calculate the new quantity based on the new number of servings
-            servings_num = int(request.data.get('servings_num', recipe.servings_num))
-            new_quantity = int(round(ingredient_instance.quantity / recipe.servings_num * servings_num))
+        #    servings_num = int(request.data.get('servings_num', recipe.servings_num))
+        #    new_quantity = int(round(ingredient_instance.quantity / recipe.servings_num * servings_num))
 
             # update the ingredient quantity
-            ingredient_instance.quantity = new_quantity
-            ingredient_instance.save()
+        #    ingredient_instance.quantity = new_quantity
+        #    ingredient_instance.save()
 
         return Response(serializer.data)
 
