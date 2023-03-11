@@ -14,25 +14,31 @@ class SignUpView(CreateAPIView):
     def post(self, request):
         serializer = UserDetailSerializer(data=request.data)
         if serializer.is_valid():
-            try:
-                validate_email(request.data.get('email'))
-            except ValidationError:
-                return Response({'message': 'enter a valid email'}, status=400)
+            if request.data.get('email'):
+                try:
+                    validate_email(request.data.get('email'))
+                except ValidationError:
+                        return Response({'message': 'enter a valid email'}, status=400)
             if request.data.get('password') != request.data.get('password2'):
                 return Response({'message': 'passwords do not match'}, status=400)
             serializer.create(request.data)
             return Response({'message': 'signup success'}, status=200)
-        print(serializer.errors)
-
-        if User.objects.filter(username = request.POST['username']).exists():
+        
+        if User.objects.filter(username = request.data.get('username')).exists():
             return Response({'message': 'username is already taken'}, status=400)
-        return Response({'message': 'serializer is invalid!'}, status=400)
+        errors = ""
+
+        if not request.data.get('password2'):
+            errors = errors + 'password2, '
+        for error in serializer.errors:
+            errors = errors + error + ', '
+        return Response({'message': 'Missing fields. The following fields are required: ' + errors}, status=400)
 
 class LoginView(APIView):
     def post(self, request):
         serializer = UserLoginSerializer(data=request.data)
         if serializer.is_valid():
-            user = authenticate(username=request.POST['username'], password=request.POST['password'])
+            user = authenticate(username=request.data.get('username'), password=request.data.get('password'))
             if user is None:
                 return Response({'message': 'Username or password is invalid'}, status=400)
             auth_logout(request)
@@ -54,23 +60,25 @@ class EditProfileView(APIView):
 
         serializer = UserEditSerializer(data=request.data)
         if serializer.is_valid():
-            
-            if request.POST['password'] != request.POST['password2']:
-                return Response({'message': 'Passwords do not match'}, status=400)
-            try:
-                validate_email(request.POST['email'])
-            except ValidationError:
-                if (request.POST['email'] != ''):
-                    return Response({'message': 'Enter a valid email address'}, status=400)
-        
-            request.user.first_name = request.POST['first_name']
-            request.user.last_name = request.POST['last_name']
-            request.user.email = request.POST['email']
-            request.user.phone_num = request.POST['phone_num']
-            request.user.avatar = request.FILES['avatar']
 
-            if request.POST['password']:
-                request.user.set_password(request.POST['password'])
+            if request.data.get('email'):
+                try:
+                    validate_email(request.data.get('email'))
+                except ValidationError:
+                        return Response({'message': 'enter a valid email'}, status=400)
+            if request.data.get('password') != request.data.get('password2'):
+                return Response({'message': 'passwords do not match'}, status=400)
+            elif request.data.get('password'):
+                request.user.set_password(request.data.get('password'))
+        
+            request.user.first_name = request.data.get('first_name')
+            request.user.last_name = request.data.get('last_name')
+            request.user.email = request.data.get('email')
+            request.user.phone_num = request.data.get('phone_num')
+            try:
+                request.user.avatar = request.FILES['avatar']
+            except e:
+                print('no avatar change')
 
             request.user.save()
             update_session_auth_hash(request, request.user)
