@@ -134,19 +134,19 @@ class CombinedListView(APIView):
         for i in range(0, len(recipies_in_cart)):
             # get recipe_id_id
             recipeID = recipies_in_cart[i]['recipe_id_id']
-            data = IngredientModel.objects.filter(recipe_id=recipeID).values()[0]
+            data = IngredientModel.objects.filter(recipe_id=recipeID).values()
             # print(data)
+            for j in range(0, len(data)):
+                ingredient_name = data[j]['name']
+                ingredient_quantity = data[j]['quantity']
 
-            ingredient_name = data['name']
-            ingredient_quantity = data['quantity']
-
-            if ingredientExists(ingredient_name, ingredients):
-                ingredients = updateQuantity(ingredient_name, ingredients, ingredient_quantity)
-            else:
-                ingredients.append({
-                    'name': ingredient_name,
-                    'quantity': ingredient_quantity
-                })
+                if ingredientExists(ingredient_name, ingredients):
+                    ingredients = updateQuantity(ingredient_name, ingredients, ingredient_quantity)
+                else:
+                    ingredients.append({
+                        'name': ingredient_name,
+                        'quantity': ingredient_quantity
+                    })
 
         # print(ingredients)
         return Response(ingredients)
