@@ -64,13 +64,20 @@ class EditProfileView(APIView):
             if request.data.get('email'):
                 try:
                     validate_email(request.data.get('email'))
+                    request.user.email = request.data.get('email')
                 except ValidationError:
                         return Response({'message': 'enter a valid email'}, status=400)
-        
-            request.user.first_name = request.data.get('first_name')
-            request.user.last_name = request.data.get('last_name')
-            request.user.email = request.data.get('email')
-            request.user.phone_num = request.data.get('phone_num')
+            if request.data.get('password') != request.data.get('password2'):
+                return Response({'message': 'passwords do not match'}, status=400)
+            elif request.data.get('password'):
+                request.user.set_password(request.data.get('password'))
+
+            if request.data.get('first_name'):
+                request.user.first_name = request.data.get('first_name')
+            if request.data.get('last_name'):
+                request.user.last_name = request.data.get('last_name')
+            if request.data.get('phone_num'):
+                request.user.phone_num = request.data.get('phone_num')
             try:
                 request.user.avatar = request.FILES['avatar']
             except:

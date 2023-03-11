@@ -20,4 +20,8 @@ class UserLoginSerializer(serializers.Serializer):
 class UserEditSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['email', 'first_name', 'last_name', 'phone_num', 'avatar']
+        fields = ['password', 'email', 'first_name', 'last_name', 'phone_num', 'avatar']
+        extra_kwargs = {
+            'password': {'required': False}
+        }
+        
