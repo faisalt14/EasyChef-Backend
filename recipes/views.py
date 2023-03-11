@@ -2,8 +2,9 @@ from django.shortcuts import render
 from rest_framework.generics import RetrieveAPIView, CreateAPIView, ListAPIView, DestroyAPIView, RetrieveUpdateAPIView
 from rest_framework.views import APIView
 import datetime
+from datetime import timedelta
 
-from recipes.models import RecipeModel, IngredientModel, StepModel, StepMediaModel
+from recipes.models import RecipeModel, IngredientModel, StepModel, StepMediaModel, RecipeMediaModel
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from recipes.serializers import RecipeSerializer, IngredientSerializer, StepSerializer, RecipeMediaSerializer, StepMediaSerializer
@@ -15,118 +16,122 @@ from accounts.serializers import UserDetailSerializer
 # Create your views here.
 
 class RemixRecipeView(APIView):
-    """
-    This view is for remix recipe view
-    """
-    # TODO authenticate with token
-
     permission_classes = [IsAuthenticated]
-
-
-    def get(self, request, *args, **kwargs):
-        # get the id of the based_on recipe
-        base_recipe = get_object_or_404(RecipeModel, id=kwargs['recipe_id'])
-        base_recipe_serialized = RecipeSerializer(base_recipe)
-        step_data = StepSerializer(base_recipe.steps.all(), many=True)
-        media_data = RecipeMediaSerializer(base_recipe.media.all(), many=True)
-        ingredients_data = IngredientSerializer(base_recipe.ingredients.all(), many=True)
-
-
-        base_recipe_data = {
-        'user_id': base_recipe.user_id.id, 'name': base_recipe.name, 'based_on': base_recipe_serialized.data, 'total_reviews': 0, 'total_likes': 0, 'total_favs': 0, 'published_time': '', 'difficulty': base_recipe.difficulty, 'meal': base_recipe.meal,
-        'diet': base_recipe.diet, 'cuisine': base_recipe.cuisine, 'cooking_time': base_recipe.cooking_time, 'prep_time': base_recipe.prep_time, 'servings_num': base_recipe.servings_num, 
-        'media': media_data.data, 'steps': step_data.data, 'ingredients': ingredients_data.data
-        }
-
-        return Response(base_recipe_data)
-        # send a response with the fields filled out except for reviews and the like
+    serializer_class = RecipeSerializer
 
     def post(self, request, *args, **kwargs):
-        # Get the base recipe object
-        base_recipe = get_object_or_404(RecipeModel, id=kwargs['recipe_id'])
-        base_recipe_data = RecipeSerializer(base_recipe).data
 
+        # Get the original recipe
+        original_recipe = get_object_or_404(RecipeModel, id=kwargs['recipe_id'])
 
-        # Create a new dictionary with the POST data, pre-filling the 'based_on' field
-        request_data = request.data.copy()
-        base_recipe_data.update(request_data)
+        # Create a new recipe instance
+        new_recipe = RecipeModel()
 
-        base_recipe_data['based_on'] = base_recipe.id
-        base_recipe_data['user_id'] = request.user.id
-        base_recipe_data['published_time'] = datetime.datetime.now()
+        # Update the new recipe instance with values from the original recipe and user input
+        for key, value in original_recipe.__dict__.items():
+            if key not in ["_state", "id"]:
+                setattr(new_recipe, key, value)
 
-        # Create a new recipe object and validate the data
-        serializer = RecipeSerializer(data=base_recipe_data)
-        if serializer.is_valid():
-            new_recipe = serializer.save()
+        new_recipe.id = None
+        new_recipe.pk = None
+        new_recipe.user_id = request.user
+        new_recipe.based_on = original_recipe
+        new_recipe.published_time = datetime.datetime.now()
+        new_recipe.save()
 
-            # Set the 'based_on' and 'user_id' fields and save the recipe
-            new_recipe.based_on = base_recipe
-            new_recipe.user_id = request.user
-            new_recipe.save()
+        # Copy over foreign key relations for StepModel
+        new_steps = []
 
-            # Serialize and return the new recipe object
-            serialized_recipe = RecipeSerializer(new_recipe)
-            return Response(serialized_recipe.data)
-        else:
-            return Response(serializer.errors, status=400)
+        for step in original_recipe.steps.all():
+            new_step = StepModel(recipe_id=new_recipe, step_num=step.step_num, cooking_time = step.cooking_time, prep_time= step.prep_time, instructions= step.instructions)
+            new_step.save()
+            new_steps.append(new_step)
 
+        new_recipe.steps.set(new_steps)
 
-        # post the recipe
-        # base_recipe = get_object_or_404(RecipeModel, id=kwargs['recipe_id'])
-        # new_recipe = RecipeModel.objects.create(
-        #     user_id=self.request.user,
-        #     name=base_recipe.name,
-        #     based_on=base_recipe,
-        #     total_reviews=0,
-        #     total_likes=0,
-        #     total_favs=0,
-        #     published_time=datetime.datetime.now,
-        #     difficulty=base_recipe.difficulty,
-        #     meal=base_recipe.meal,
-        #     diet=base_recipe.diet,
-        #     cuisine=base_recipe.cuisine,
-        #     cooking_time=base_recipe.cooking_time,
-        #     prep_time=base_recipe.prep_time,
-        #     servings_num=base_recipe.servings_num,
-        # )
+        # Copy over foreign key relations for IngredientModel
+        new_ingredients = []
+        for ingredient in original_recipe.ingredients.all():
+            new_ingredient = IngredientModel(recipe_id=new_recipe, name=ingredient.name, quantity=ingredient.quantity, unit=ingredient.unit)
+            new_ingredient.save()
+            new_ingredients.append(new_ingredient)
+        new_recipe.ingredients.set(new_ingredients)
 
-        # # Add the steps
-        # steps = StepModel.objects.get(recipe_id=base_recipe)
-        # for step in steps:
-        #     Step.objects.create(
-        #         recipe_id=new_recipe,
-        #         step_num=step.step_num,
-        #         cooking_time=step.cooking_time,
-        #         prep_time=step.prep_time,
-        #         instructions=step.instructions
-        #     )
+        # Copy over foreign key relations for RecipeMediaModel
+        new_medias = []
+        for item in original_recipe.media.all():
+            new_media = RecipeMediaModel(recipe_id=new_recipe, media=item.media)
+            new_media.save()
+            new_medias.append(new_media)
+        new_recipe.media.set(new_medias)
 
-        # # Add the media
-        # media = RecipeMedia.objects.filter(recipe=base_recipe)
-        # for media_item in media:
-        #     RecipeMedia.objects.create(
-        #         recipe=new_recipe,
-        #         media_type=media_item.media_type,
-        #         media_url=media_item.media_url
-        #     )
+        # Update the new recipe instance with values from user input
+        for key, value in request.data.items():
+            if key == "steps":
+                steps_list = [int(x.strip()) for x in value.split(",")]
+                step_ids = []
+                # Create Step instances
+                total_cook = timedelta(hours=0, minutes=0)
+                total_prep = timedelta(hours=0, minutes=0)
 
-        # # Add the ingredients
-        # ingredients = Ingredient.objects.filter(recipe=base_recipe)
-        # for ingredient in ingredients:
-        #     Ingredient.objects.create(
-        #         recipe=new_recipe,
-        #         name=ingredient.name,
-        #         amount=ingredient.amount
-        #     )
+                for index, step_id in enumerate(steps_list):
+                    base_step = get_object_or_404(StepModel, id=step_id)
+                    total_cook += base_step.cooking_time
+                    total_prep += base_step.prep_time
+                    base_step.recipe_id = new_recipe
+                    base_step.step_num = index + 1
+                    base_step.save()
+                    step_ids.append(base_step)
+                recipe.calculated_prep_time = total_prep
+                recipe.calculated_cooking_time = total_cook
+                new_recipe.steps.set(step_ids)
+                new_recipe.save()
 
-        # # Serialize the new recipe
-        # serializer = RecipeSerializer(new_recipe)
-        # serializer = RecipeSerializer(new_recipe, data=request.data, partial=True)
-        # if serializer.is_valid():
-        #     serializer.save()
-        #     return Response(serializer.data, status=status.HTTP_201_CREATED)
-        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            if key == "ingredients":     
+                ingredients_list = [int(x.strip()) for x in value.split(",")]
+                ingredient_ids = []
+                # Create Ingredient instances
+                for ingredient_data in ingredients_list:
+                    ingredient_base = get_object_or_404(IngredientModel, id=ingredient_data)
+                    copied_ingredient = IngredientModel()
+                    copied_ingredient.recipe_id = new_recipe
+
+                    copied_ingredient.quantity = int(ingredient_base.quantity / original_recipe.servings_num * new_recipe.servings_num)
+
+                    copied_ingredient.unit = unit
+                    ingredient_ids.append(copied_ingredient)
+
+                new_recipe.ingredients.set(ingredient_ids)
+                new_recipe.save()
+
+            if key == "media":
+                media_list = [int(x.strip()) for x in value.split(",")]
+                media_ids = []
+                # Create Media instances
+                for media_data in media_list:
+                    media_base = get_object_or_404(RecipeMediaModel, id=media_data)
+                    media_base.recipe_id = new_recipe
+                    media_base.save()
+                    media_ids.append(media_base)
+                new_recipe.media.set(media_ids)
+                new_recipe.save()
+
+            if key in ['cooking_time', 'prep_time']:
+                if isinstance(value, str):
+                    hours, minutes, seconds = map(int, value.split(":"))
+                    delta = timedelta(hours=int(hours), minutes=int(minutes), seconds=int(seconds))
+                else:
+                    delta = value
+
+            if key not in ["steps", "ingredients", "media", 'cooking_time', 'prep_time']:
+                setattr(new_recipe, key, value)
+
+        # Save the new recipe instance
+        new_recipe.save()
+
+        # Return the new recipe data
+        response_data = RecipeSerializer(new_recipe).data
+        return Response(response_data)
 
 class CreateRecipeView(RetrieveUpdateAPIView, CreateAPIView):
     # To create a recipe, send a POST request to /recipes/create-recipe/.
@@ -141,68 +146,81 @@ class CreateRecipeView(RetrieveUpdateAPIView, CreateAPIView):
         serializer.save(user_id=self.request.user.id)
 
     def create(self, request, *args, **kwargs):
+
         step_ids = []
         ingredient_ids = []
         media_ids = []
 
-        steps_list = request.data.get('steps', [])
-        ingredients_list = request.data.get('ingredients', [])
-        media_list = request.data.get('media', [])
+        steps_list = request.data.get('steps', '')
+        ingredients_list = request.data.get('ingredients', '')
+        media_list = request.data.get('media', '')
 
+        if steps_list:
+            steps_list = [int(x.strip()) for x in steps_list.split(",")]
+        if ingredients_list:
+            ingredients_list = [int(x.strip()) for x in ingredients_list.split(",")]
+        if media_list:
+            media_list = [int(x.strip()) for x in media_list.split(",")]
+        
         recipe_data = request.data.copy()
         recipe_data['published_time'] = datetime.datetime.now()
-        recipe_serializer = RecipeSerializer(data=recipe_data)
+        recipe_serializer = RecipeSerializer(data=recipe_data, partial=True)
+
+        
         recipe_serializer.is_valid(raise_exception=True)
         recipe = recipe_serializer.save()
-                
         # # Create Step instances
-        for index, step_data in enumerate(steps_list):
-            base_step = get_object_or_404(StepModel, id=step_data)
-            base_step.recipe_id = recipe.id
+        total_cook = timedelta(hours=0, minutes=0)
+        total_prep = timedelta(hours=0, minutes=0)
+        for index, step_id in enumerate(steps_list):
+            base_step = get_object_or_404(StepModel, id=step_id)
+            total_cook += base_step.cooking_time
+            total_prep += base_step.prep_time
+            base_step.recipe_id = recipe
             base_step.step_num = index + 1
+            base_step.save()
             step_ids.append(base_step)
-            # step_serializer = StepSerializer(data=step_data)
-            # step_serializer.is_valid(raise_exception=True)
-            # step = step_serializer.save()
-            # step_ids.append(step.id)
-
             
         # # Create Ingredient instances
         for ingredient_data in ingredients_list:
             ingredient_base = get_object_or_404(IngredientModel, id=ingredient_data)
-            ingredient_base.recipe_id = recipe.id
-            ingredient_ids.append(ingredient_base)
 
-            # ingredient_data['recipe_id'] = recipe.id
-            # ingredient_serializer = IngredientSerializer(data=ingredient_data)
-            # ingredient_serializer.is_valid(raise_exception=True)
-            # ingredient = ingredient_serializer.save()
-            # ingredient_ids.append(ingredient.id)
+            # make a copy of the base ingredient - base ingredient has null
+            copied_ingredient = IngredientModel()
+            copied_ingredient.name = ingredient_base.name
+            copied_ingredient.recipe_id = recipe
+            copied_ingredient.quantity = ingredient_base.quantity
+            copied_ingredient.unit = ingredient_base.unit
+
+            copied_ingredient.save()
+            ingredient_ids.append(copied_ingredient)
 
         # # Create Media instances
         for media_data in media_list:
             media_base = get_object_or_404(RecipeMediaModel, id=media_data)
-            media_base.recipe_id = recipe.id
+            media_base.recipe_id = recipe
+            media_base.save()
             media_ids.append(media_base)
-
-            # media_data['recipe_id'] = recipe.id
-            # media_serializer = RecipeMediaSerializer(data=media_data)
-            # media_serializer.is_valid(raise_exception=True)
-            # media = media_serializer.save()
-            # media_ids.append(media.id)
-        
         
         # Create Recipe instance
-        # recipe_data = request.data.copy()
         recipe.steps.set(step_ids)
         recipe.ingredients.set(ingredient_ids)
         recipe.media.set(media_ids)
+        recipe.calculated_prep_time = total_prep
+        recipe.calculated_cook_time = total_cook
+        # we need to calculate the total cooking time, prep_time
+
+        servings_num = request.data.get('servings_num')
+        if servings_num:
+            recipe_ingredient_instances = recipe.ingredients.all()
+            for ingredient_instance in recipe_ingredient_instances:
+                new_quantity = int(ingredient_instance.quantity) * int(servings_num)
+                ingredient_instance.quantity = int(new_quantity)
+                ingredient_instance.save(update_fields=['quantity'])
+
         recipe.save()
 
-        # recipe_data['published_time'] = datetime.datetime.now()
-        # recipe_serializer = RecipeSerializer(data=recipe_data)
-        # recipe_serializer.is_valid(raise_exception=True)
-        # recipe_serializer.save()
+
         
         return Response(recipe_serializer.data, status=status.HTTP_201_CREATED)
 
@@ -210,37 +228,34 @@ class CreateRecipeView(RetrieveUpdateAPIView, CreateAPIView):
     def update(self, request, *args, **kwargs):
         # get the instance of the model we are updating
         instance = get_object_or_404(RecipeModel, id=kwargs['recipe_id'])
+        if self.request.user != instance.user_id:
+            return Response('Forbidden', status=403)
 
-        # we update it from the serializer and save it to the database
+        # calculate the ratio of new servings to old servings
+        old_servings = instance.servings_num
+        new_servings = request.data.get('servings_num', old_servings)
+        ratio = int(new_servings) / int(old_servings)
+
+        # update the instance from the serializer and save it to the database
         # partial = True allows us to retain data that was already there (hence the editing)
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
-        serializer.save(user=self.request.user)
+        recipe = serializer.save(user=self.request.user)
+
+        # adjust ingredient quantities based on the new ratio
+        for ingredient_instance in recipe.ingredients.all():
+            # calculate the new quantity based on the new number of servings
+            servings_num = int(request.data.get('servings_num', recipe.servings_num))
+            new_quantity = int(round(ingredient_instance.quantity / recipe.servings_num * servings_num))
+
+            # update the ingredient quantity
+            ingredient_instance.quantity = new_quantity
+            ingredient_instance.save()
+
         return Response(serializer.data)
 
-    # def get(self, request):
-    #     current_user_id = request.user.id
-    #     recipe = RecipeModel(user_id=current_user_id)
-    #     serializer = RecipeSerializer(recipe)
-    #     return Response(serializer.data)
-    #     # current_user_id = request.user.id
-    #     # data = {'user_id': current_user_id, 'name': "", 'based_on': None, 'total_reviews': 0, 'total_likes': 0, 'total_favs': 0, 'published_time': '', 'difficulty': '', 'meal': '',
-    #     # 'diet': '', 'cuisine': '', 'cooking_time': '', 'prep_time': '', 'servings_num': '', 'media': [], 'steps': [], 'ingredients': []}
-    #     # serializer = RecipeSerializer(data=data)
-    #     # serializer.is_valid()
-    #     # return Response(serializer.data)
-
-    # def perform_create(self, serializer):
-    #     serializer.save(user_id=self.request.user.id)
-
-    # def post(self, request):
-    #     serializer = RecipeSerializer(data=request.data)
-    #     if serializer.is_valid():
-    #         serializer.save(user_id=self.request.user.id, published_time=datetime.datetime.now())
-    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 class IngredientAutocompleteView(ListAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = IngredientSerializer
     queryset = IngredientModel.objects.all()
 
@@ -248,20 +263,14 @@ class IngredientAutocompleteView(ListAPIView):
         queryset = super().get_queryset()
         search_query = self.request.query_params.get('query', '')
         if search_query:
-            queryset = queryset.filter(name__icontains=search_query)
+            queryset = queryset.filter(name__icontains=search_query, recipe_id=None)
+        else:
+            queryset = queryset.filter(recipe_id=None)
         return queryset
 
-# class CreateStepView(CreateAPIView):
-#     queryset = StepModel.objects.all()
-#     serializer_class = StepSerializer
-    
-#     def perform_create(self, serializer):
-#         recipe_id = self.kwargs['recipe_id']
-#         recipe = RecipeModel.objects.get(id=recipe_id)
-#         serializer.save(recipe_id=recipe)
 
 class CreateStepView(CreateAPIView):
-    queryset = StepModel.objects.all()
+    permission_classes = [IsAuthenticated]
     serializer_class = StepSerializer
     
     def perform_create(self, serializer):
@@ -269,6 +278,7 @@ class CreateStepView(CreateAPIView):
         return serializer.data
 
 class AddRecipeMedia(CreateAPIView):
+    permission_classes = [IsAuthenticated]
     queryset = StepMediaModel.objects.all()
     serializer_class = RecipeMediaSerializer
     
@@ -278,10 +288,11 @@ class AddRecipeMedia(CreateAPIView):
 
 
 class AddStepMedia(CreateAPIView):
-    queryset = StepMediaModel.objects.all()
+    permission_classes = [IsAuthenticated]
     serializer_class = StepMediaSerializer
 
 class CreateIngredientView(CreateAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = IngredientSerializer
     
     def perform_create(self, serializer):
@@ -291,6 +302,7 @@ class CreateIngredientView(CreateAPIView):
 class RecipeDetailView(RetrieveAPIView):
     serializer_class = RecipeSerializer
     queryset = RecipeModel.objects.all()
+    permission_classes = []
 
     def get_object(self):
         queryset = self.get_queryset()

@@ -55,17 +55,26 @@ class RecipeModel(models.Model):
     cuisine = models.IntegerField(choices=cuisine_choices)
     cooking_time = models.DurationField()
     prep_time = models.DurationField()
+    calculated_total_time = models.DurationField(default=datetime.timedelta(hours=0, minutes=0))
+    calculated_cook_time = models.DurationField(default=datetime.timedelta(hours=0, minutes=0))
+    calculated_prep_time = models.DurationField(default=datetime.timedelta(hours=0, minutes=0))
+    total_time = models.DurationField(default=datetime.timedelta(hours=0, minutes=0))
     servings_num = models.IntegerField()
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        self.total_time = self.cooking_time + self.prep_time
+        self.calculated_total_time = self.calculated_cook_time + self.calculated_prep_time
+        super().save(*args, **kwargs)
 
 class RecipeMediaModel(models.Model):
     recipe_id = models.ForeignKey(RecipeModel, on_delete=models.CASCADE, related_name="media", blank=True, null=True)
     media = models.FileField(upload_to="recipe-media/")
 
     def __str__(self):
-          return f"Media {self.id} for recipe {self.recipe_id.id}: {self.recipe_id.name}"
+          return f"{self.id}: Media {self.id}"
 
 
 class StepModel(models.Model):
@@ -74,13 +83,16 @@ class StepModel(models.Model):
       - StepMediaModel for the step it applies to
     """
     recipe_id = models.ForeignKey("RecipeModel", on_delete=models.CASCADE, related_name="steps", default=None, blank=True, null=True)
-    step_num = models.PositiveIntegerField()
+    step_num = models.PositiveIntegerField(default=0)
     cooking_time = models.DurationField()
     prep_time = models.DurationField()
     instructions = models.CharField(max_length=225)
 
     def __str__(self):
-        return f"Step {self.step_num} for recipe {self.recipe_id.id}: {self.recipe_id.name}"
+        if self.recipe_id is not None:
+            return f"{self.id} - Step {self.step_num} for recipe {self.recipe_id.id}: {self.recipe_id.name}"
+        else:
+            return f"{self.id} - Step {self.step_num} for an unspecified recipe"
 
 class StepMediaModel(models.Model):
     step_id = models.ForeignKey("StepModel", on_delete=models.CASCADE, related_name="media")
@@ -101,7 +113,7 @@ class IngredientModel(models.Model):
     unit = models.CharField(max_length=20, default="cups")
     
     def __str__(self):
-      return self.name
+      return f"{self.name}: {self.id}" 
 
 class InteractionModel(models.Model):
     """

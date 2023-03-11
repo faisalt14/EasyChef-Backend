@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import RecipeModel, RecipeMediaModel, StepModel, StepMediaModel, InteractionModel, ReviewMediaModel, IngredientModel
+from datetime import timedelta
 
 class RecipeMediaSerializer(serializers.ModelSerializer):
     recipe_id = serializers.PrimaryKeyRelatedField(queryset=RecipeModel.objects.all(), required=False)
@@ -15,19 +16,45 @@ class StepMediaSerializer(serializers.ModelSerializer):
             'media': {'required': True}
         }
 
+class DurationField(serializers.Field):
+    def to_representation(self, value):
+        hours, remainder = divmod(value.seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        return '{:02d}:{:02d}:{:02d}'.format(hours, minutes, seconds)
+    
+    def to_internal_value(self, value):
+        if isinstance(value, str):
+            hours, minutes, seconds = map(int, value.split(':'))
+            return timedelta(hours=int(hours), minutes=int(minutes), seconds=int(seconds))
+        return value
 
 class StepSerializer(serializers.ModelSerializer):
+    cooking_time = DurationField()
+    prep_time = DurationField()
     media = StepMediaSerializer(many=True, read_only=False, required=False)
 
     class Meta:
         model = StepModel
         fields = ['id', 'recipe_id', 'step_num', 'cooking_time', 'prep_time', 'instructions', 'media']
         extra_kwargs = {
-            'media': {'required': False, 'allow_null': True}
+            'media': {'required': False, 'allow_null': True},
+            'step_num': {'required': False}
         }
 
     def create(self, validated_data):
-        media_data = validated_data.pop('media')
+        media_data = validated_data.get('media', '')
+        cook = validated_data.get('cooking_time', '')
+        prep = validated_data.get('prep_time', '')
+
+        if isinstance(cook, str):
+            hours, minutes, seconds = map(int, cook.split(':'))
+            cook = timedelta(hours=int(hours), minutes=int(minutes), seconds=int(seconds))
+            validated_data['cooking_time'] = cook
+
+        if isinstance(prep, str):
+            hours, minutes, seconds = map(int, prep.split(':'))
+            prep = timedelta(hours=int(hours), minutes=int(minutes), seconds=int(seconds))
+            validated_data['prep_time'] = prep
         step = StepModel.objects.create(**validated_data)
 
         for media in media_data:
@@ -37,6 +64,7 @@ class StepSerializer(serializers.ModelSerializer):
 
 class IngredientSerializer(serializers.ModelSerializer):
     recipe_id = serializers.PrimaryKeyRelatedField(queryset=RecipeModel.objects.all(), required=False)
+    quantity = serializers.IntegerField()
     class Meta:
         model = IngredientModel
         fields = ['id', 'recipe_id', 'name', 'quantity', 'unit']
@@ -57,16 +85,25 @@ class InteractionSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
-    media = RecipeMediaSerializer(many=True)
-    steps = StepSerializer(many=True)
-    ingredients = IngredientSerializer(many=True)
+    cooking_time = DurationField()
+    prep_time = DurationField()
+    total_time = DurationField() 
+    calculated_total_time = DurationField(read_only=True) 
+    calculated_prep_time = DurationField(read_only=True)
+    calculated_cook_time = DurationField(read_only=True)
+
+    media = RecipeMediaSerializer(many=True, required=True)
+    steps = StepSerializer(many=True, required=True)
+    ingredients = IngredientSerializer(many=True, required=True)
     interactions = InteractionSerializer(many=True, required=False)
+
 
 
     class Meta:
         model = RecipeModel
         fields = ['id', 'user_id', 'name', 'based_on', 'total_reviews', 'total_likes', 'total_favs', 'published_time',
-                  'difficulty', 'meal', 'diet', 'cuisine', 'cooking_time', 'prep_time', 'servings_num', 'media', 'steps', 'ingredients', 'interactions']
+                  'difficulty', 'meal', 'diet', 'cuisine', 'total_time', 'cooking_time', 'prep_time', 'calculated_total_time', 'calculated_prep_time', 'calculated_cook_time', 
+                  'servings_num', 'media', 'steps', 'ingredients', 'interactions']
 
         extra_kwargs = {
             'media': {'write_only': True}, 
@@ -74,24 +111,3 @@ class RecipeSerializer(serializers.ModelSerializer):
             'ingredients': {'write_only': True},
             'interactions': {'write_only': True}
         }
-    # def create(self, validated_data):
-    #     validated_data['user_id'] = self.context['request'].user.id
-    #     steps_data = validated_data.pop('steps')
-    #     media_data = validated_data.pop('media')
-    #     ingredients_data = validated_data.pop('ingredients')
-    #     interaction_data = validated_data.pop('interactions')
-
-    #     recipe = RecipeModel.objects.create(**validated_data)
-    #     for steps in steps_data:
-    #         StepModel.objects.create(recipe_id=recipe.id, **steps_data)
-
-    #     for media in media_data:
-    #         RecipeMediaModel.objects.create(recipe_id=recipe.id, **media_data)
-        
-    #     for ingredient in ingredients_data:
-    #         IngredientModel.objects.create(recipe_id=recipe.id, **ingredients_data)
-
-    #     for interaction in interaction_data:
-    #         InteractionModel.objects.create(recipe_id=recipe.id, **interaction_data)
-
-    #     return recipe
