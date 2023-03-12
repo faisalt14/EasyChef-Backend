@@ -22,4 +22,4 @@ class ShoppingRecipeModel(models.Model):
     servings_num = models.PositiveIntegerField()
 
     def __str__(self):
-        return f"User {self.user_id.name} has {self.recipe_id.name} in their shopping cart."
+        return f"{self.user_id} has {self.recipe_id} in their shopping cart."
