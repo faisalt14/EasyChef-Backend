@@ -12,10 +12,10 @@ Class-based views
 Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
+ """
 from django.contrib import admin
 from django.urls import path
-from accounts.views import SignUpView, LoginView, LogoutView, EditProfileView, CombinedListView
+from accounts.views import SignUpView, LoginView, LogoutView, EditProfileView, CombinedListView, IndividualListView
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 urlpatterns = [
@@ -25,4 +25,7 @@ urlpatterns = [
     path('profile/edit/', EditProfileView.as_view()),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('combined-list/', CombinedListView.as_view()),
+    path('shopping-list/', IndividualListView.as_view()),
 ]
+
+

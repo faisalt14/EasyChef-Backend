@@ -152,12 +152,12 @@ class CombinedListView(APIView):
                     else:
 
                         """
-                            Formula for calculating the quantity amount: 
-                            
-                            - divide the original recipe quantity by the original serving num to get a quantity value 
-                            equal to 1 serving. 
-                            - Then multiply this quantity for 1 serving amount by the number of servings the shopping 
-                            cart has. 
+                            Formula for calculating the quantity amount:
+
+                            - divide the original recipe quantity by the original serving num to get a quantity value
+                            equal to 1 serving.
+                            - Then multiply this quantity for 1 serving amount by the number of servings the shopping
+                            cart has.
                             *Note we always return an int and round up for decimals
                         """
                         original_quantity = IngredientModel.objects.get(recipe_id=original_recipe.id,
@@ -179,12 +179,12 @@ class CombinedListView(APIView):
                     else:
 
                         """
-                            Formula for calculating the quantity amount: 
+                            Formula for calculating the quantity amount:
 
-                            - divide the original recipe quantity by the original serving num to get a quantity value 
-                            equal to 1 serving. 
-                            - Then multiply this quantity for 1 serving amount by the number of servings the shopping 
-                            cart has. 
+                            - divide the original recipe quantity by the original serving num to get a quantity value
+                            equal to 1 serving.
+                            - Then multiply this quantity for 1 serving amount by the number of servings the shopping
+                            cart has.
                         """
                         original_quantity = IngredientModel.objects.get(
                             recipe_id=original_recipe.id, name=ingredient_name).quantity / original_recipe.servings_num
@@ -196,3 +196,80 @@ class CombinedListView(APIView):
                         })
 
         return Response(ingredients)
+
+
+class IndividualListView(APIView):
+
+    def get(self, request, *args, **kwargs):
+
+        result = []
+
+        # All recipes this user has interacted with (created, liked, commented, favourited)
+        recipies_in_cart = ShoppingRecipeModel.objects.filter(user_id=self.request.user.id).values()
+
+        # Loop over each recipe and get all ingredients for it
+        for i in range(0, len(recipies_in_cart)):
+
+            recipeID = recipies_in_cart[i]['recipe_id_id']
+            shoppingListServing = recipies_in_cart[i]['servings_num']
+            original_recipe = RecipeModel.objects.get(id=recipeID)
+
+            # List of ingredients for this specific recipe
+            # Form: [
+            #         {
+            #         'Name':
+            #          'Quantity':
+            #           }, ... ,
+            #         ]
+            ingredients = []
+
+            # All ingredients for this specific recipe
+            ingredients_data = IngredientModel.objects.filter(recipe_id=recipeID).values()
+
+            """
+            Loop over all ingredients, if serving number for recipe in shopping cart is same as the recipe, 
+                just add the ingredient name and quantity. 
+                If not, re-calculate the quantity .
+            """
+            for j in range(0, len(ingredients_data)):
+                ingredient_name = ingredients_data[j]['name']
+                ingredient_quantity = ingredients_data[j]['quantity']
+
+                if shoppingListServing == original_recipe.servings_num:
+
+                    ingredients.append(
+                        {
+                            'Name': ingredient_name,
+                            'Quantity': ingredient_quantity
+                        }
+                    )
+                else:
+
+                    """
+                        Formula for calculating the quantity amount:
+
+                        - divide the original recipe quantity by the original serving num to get a quantity value
+                        equal to 1 serving.
+                        - Then multiply this quantity for 1 serving amount by the number of servings the shopping
+                        cart has.
+                        *Note we always return an int and round up for decimals
+                    """
+                    original_quantity = IngredientModel.objects.get(recipe_id=original_recipe.id,
+                                                                    name=ingredient_name).quantity / original_recipe.servings_num
+                    updated_quantity = original_quantity * shoppingListServing
+                    ingredients.append(
+                        {
+                            'Name': ingredient_name,
+                            'Quantity': int(math.ceil(updated_quantity))
+                        }
+                    )
+
+            result.append(
+                {
+                    'Recipe Name': original_recipe.name,
+                    'Servings': shoppingListServing,
+                    'Ingredients': ingredients
+                }
+            )
+
+        return Response(result)
