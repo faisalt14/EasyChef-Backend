@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from accounts.views import SignUpView, LoginView, LogoutView, EditProfileView, PublishedRecipesView, RecentRecipesView, FavoriteRecipesView
+from accounts.views import SignUpView, LoginView, LogoutView, EditProfileView, PublishedRecipesView, RecentRecipesView, FavouriteRecipesView
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 urlpatterns = [
@@ -25,6 +25,6 @@ urlpatterns = [
     path('profile/edit/', EditProfileView.as_view()),
     path('myrecipes/published-recipes/', PublishedRecipesView.as_view()),
     path('myrecipes/recent-recipes/', RecentRecipesView.as_view()),
-    path('myrecipes/favorite-recipes/', FavoriteRecipesView.as_view()), 
+    path('myrecipes/favourite-recipes/', FavouriteRecipesView.as_view()), 
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
 ]

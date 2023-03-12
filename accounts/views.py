@@ -111,7 +111,7 @@ class PublishedRecipesView(ListAPIView):
             .order_by('-published_time')
         )
 
-class FavoriteRecipesView(ListAPIView):
+class FavouriteRecipesView(ListAPIView):
     serializer_class = InteractedRecipesSerializer
     permission_classes = [IsAuthenticated]
 
