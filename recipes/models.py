@@ -42,6 +42,7 @@ class RecipeModel(models.Model):
     total_reviews = models.IntegerField(default=0)
     total_likes = models.IntegerField(default=0)
     total_favs = models.IntegerField(default=0)
+    avg_rating = models.FloatField(default=0)
     published_time = models.DateTimeField(default=datetime.datetime.now)
     difficulty_choices = [
         (0, 'Easy'),

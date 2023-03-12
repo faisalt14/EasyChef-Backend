@@ -79,20 +79,20 @@ class SearchView(ListAPIView):
     def get_queryset(self):
 
         # Create the base search results based on simple dropdown filters
-        search_results = RecipeModel.objects.filter(cuisine=int(self.request.query_params.get('cuisine'))) if (int(self.request.query_params.get('cuisine', 14)) < 14) else RecipeModel.objects.all()
-        search_results = search_results.filter(diet=int(self.request.query_params.get('diet', 5))) if (int(self.request.query_params.get('diet', 6)) < 6) else search_results
-        search_results = search_results.filter(meal=int(self.request.query_params.get('meal', 5))) if (int(self.request.query_params.get('meal', 6)) < 6) else search_results
+        search_results = RecipeModel.objects.filter(cuisine=int(self.request.query_params.get('cuisine'))).distinct() if (int(self.request.query_params.get('cuisine', 14)) < 14) else RecipeModel.objects.all()
+        search_results = search_results.filter(diet=int(self.request.query_params.get('diet', 5))).distinct() if (int(self.request.query_params.get('diet', 6)) < 6) else search_results
+        search_results = search_results.filter(meal=int(self.request.query_params.get('meal', 5))).distinct() if (int(self.request.query_params.get('meal', 6)) < 6) else search_results
         
 
         # Check for the search query based on the search category
         category = self.request.query_params.get('category', '')
         query = self.request.query_params.get('query', '')
         if category == 'Recipe':
-            search_results = search_results.filter(name__icontains=query)
+            search_results = search_results.filter(name__icontains=query).distinct()
         elif category == 'Ingredients':
-            search_results = search_results.filter(ingredients__name__icontains=query)
+            search_results = search_results.filter(ingredients__name__icontains=query).distinct()
         elif category == 'User':
-            search_results = search_results.filter(user_id__username__icontains=query)
+            search_results = search_results.filter(user_id__username__icontains=query).distinct()
         else:
             raise APIException("Not a valid search category. Please select a category from the following list: "
                                "['Recipe', 'Ingredients', 'User']")
@@ -107,13 +107,13 @@ class SearchView(ListAPIView):
         if cooking_time == 0:
             return search_results
         elif cooking_time == 1:
-            return search_results.filter(cooking_time__lte=timedelta(minutes=10))
+            return search_results.filter(cooking_time__lte=timedelta(minutes=10)).distinct()
         elif cooking_time == 2:
-            return search_results.filter(cooking_time__lte=timedelta(minutes=30), cooking_time__gte=timedelta(minutes=10))
+            return search_results.filter(cooking_time__lte=timedelta(minutes=30), cooking_time__gte=timedelta(minutes=10)).distinct()
         elif cooking_time == 3:
-            return search_results.filter(cooking_time__lte=timedelta(minutes=60), cooking_time__gte=timedelta(minutes=30))
+            return search_results.filter(cooking_time__lte=timedelta(minutes=60), cooking_time__gte=timedelta(minutes=30)).distinct()
         else:
-            return search_results.filter(cooking_time__gte=timedelta(minutes=60))
+            return search_results.filter(cooking_time__gte=timedelta(minutes=60)).distinct()
 
 class HomeView(APIView):
     serializer_class = RecipesSerializer
