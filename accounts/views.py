@@ -100,7 +100,7 @@ class EditProfileView(APIView):
         return Response({'message': 'serializer is invalid!' + Email_Error}, status=400)
 
 class PublishedRecipesView(ListAPIView):
-    # serializer_class = InteractedRecipesSerialzier
+    serializer_class = InteractedRecipesSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -111,13 +111,8 @@ class PublishedRecipesView(ListAPIView):
             .order_by('-published_time')
         )
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        response_data = InteractedRecipesSerializer(queryset, many=True).data
-        data = {'user_id': request.user.id, 'recipes': response_data}
-        return Response(data)
-
 class FavoriteRecipesView(ListAPIView):
+    serializer_class = InteractedRecipesSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -129,14 +124,8 @@ class FavoriteRecipesView(ListAPIView):
             .order_by('-published_time')
         )
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        response_data = InteractedRecipesSerializer(queryset, many=True).data
-        data = {'user_id': request.user.id, 'recipes': response_data}
-        return Response(data)
-
-
 class RecentRecipesView(ListAPIView):
+    serializer_class = InteractedRecipesSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -146,9 +135,3 @@ class RecentRecipesView(ListAPIView):
         lst = RecipeModel.objects.filter(Q(id__in=interaction_recipe_ids) | Q(id__in=my_recipes)).distinct().order_by('-published_time')
 
         return lst
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        response_data = InteractedRecipesSerializer(queryset, many=True).data
-        data = {'user_id': request.user.id, 'recipes': response_data}
-        return Response(data)
