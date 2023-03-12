@@ -122,29 +122,19 @@ def updateQuantity(name: str, ingredients: list, quantity: int):
 
 
 class CombinedListView(APIView):
-    # serializer_class = AllShoppingListSerializer
-
-    # def get_queryset(self):
-    #     return ShoppingRecipeModel.objects.filter(id=self.request.user.id)
 
     def get(self, request, *args, **kwargs):
         recipies_in_cart = ShoppingRecipeModel.objects.filter(user_id=self.request.user.id).values()
-        # print(recipies_in_cart)
-        # return Response(recipies_in_cart)
 
         # loop over each dictionary item in recipies_in_cart to get every ingredient for every recipe
         ingredients = []
         for i in range(0, len(recipies_in_cart)):
 
-            # get recipe_id_id
             recipeID = recipies_in_cart[i]['recipe_id_id']
             shoppingListServing = recipies_in_cart[i]['servings_num']
             original_recipe = RecipeModel.objects.get(id=recipeID)
-            # print(original_recipe.servings_num)
 
-            #
             ingredients_data = IngredientModel.objects.filter(recipe_id=recipeID).values()
-            # print(data)
 
             for j in range(0, len(ingredients_data)):
                 ingredient_name = ingredients_data[j]['name']
@@ -200,5 +190,4 @@ class CombinedListView(APIView):
                             'quantity': int(math.ceil(updated_quantity))
                         })
 
-        # print(ingredients)
         return Response(ingredients)
