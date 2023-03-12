@@ -2,12 +2,16 @@ from django.shortcuts import render
 from django.contrib.auth import authenticate, logout as auth_logout, login as auth_login, update_session_auth_hash
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from accounts.models import User
 from accounts.serializers import UserDetailSerializer, UserLoginSerializer, UserEditSerializer
+from recipes.serializers import RecipeSerializer, InteractedRecipesSerializer
+from recipes.models import RecipeModel, InteractionModel
+from django.db.models import Q
+
 
 # Create your views here.
 class SignUpView(CreateAPIView):
@@ -94,3 +98,57 @@ class EditProfileView(APIView):
         except:
             pass
         return Response({'message': 'serializer is invalid!' + Email_Error}, status=400)
+
+class PublishedRecipesView(ListAPIView):
+    # serializer_class = InteractedRecipesSerialzier
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return (
+            RecipeModel.objects
+            .filter(user_id=user)
+            .order_by('-published_time')
+        )
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        response_data = InteractedRecipesSerializer(queryset, many=True).data
+        data = {'user_id': request.user.id, 'recipes': response_data}
+        return Response(data)
+
+class FavoriteRecipesView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return (
+            RecipeModel.objects
+            .filter(interactions__user_id=user, interactions__favourite=True)
+            .prefetch_related('interactions__recipe_id')
+            .order_by('-published_time')
+        )
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        response_data = InteractedRecipesSerializer(queryset, many=True).data
+        data = {'user_id': request.user.id, 'recipes': response_data}
+        return Response(data)
+
+
+class RecentRecipesView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        interaction_recipe_ids = InteractionModel.objects.filter(user_id=user).values('recipe_id')
+        my_recipes = RecipeModel.objects.filter(user_id=user)
+        lst = RecipeModel.objects.filter(Q(id__in=interaction_recipe_ids) | Q(id__in=my_recipes)).distinct().order_by('-published_time')
+
+        return lst
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        response_data = InteractedRecipesSerializer(queryset, many=True).data
+        data = {'user_id': request.user.id, 'recipes': response_data}
+        return Response(data)

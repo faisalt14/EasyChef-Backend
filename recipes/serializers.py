@@ -1,13 +1,6 @@
 from rest_framework import serializers
-from recipes.models import RecipeModel, RecipeMediaModel, StepModel, StepMediaModel, InteractionModel, ReviewMediaModel, IngredientModel
+from .models import RecipeModel, RecipeMediaModel, StepModel, StepMediaModel, InteractionModel, ReviewMediaModel, IngredientModel
 from datetime import timedelta
-
-
-class RecipesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = RecipeModel
-        fields = ['name', 'difficulty', 'meal', 'cuisine', 'total_reviews', 'total_likes', 'total_favs']
-
 
 class RecipeMediaSerializer(serializers.ModelSerializer):
     recipe_id = serializers.PrimaryKeyRelatedField(queryset=RecipeModel.objects.all(), required=False)
@@ -124,3 +117,14 @@ class RecipeSerializer(serializers.ModelSerializer):
             'interactions': {'write_only': True},
             'name': {'required': True},
         }
+
+class RecipesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RecipeModel
+        fields = ['name', 'difficulty', 'meal', 'cuisine', 'total_reviews', 'total_likes', 'total_favs']
+
+
+class InteractedRecipesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RecipeModel
+        fields = ['id', 'user_id', 'name', 'difficulty', 'meal', 'cuisine', 'total_reviews', 'total_likes', 'total_favs']
