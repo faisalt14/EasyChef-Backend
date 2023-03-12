@@ -30,7 +30,7 @@ class RecipeModel(models.Model):
     Foreign Keys To Keep Track Of:
       - StepModel for steps
       - RecipeMediaModel for the displayed images/videos at top
-      - QuantityModel for ingredients and Quantities
+      - IngredientModel for ingredients and Quantities
       - ReviewModel for the review
       - 'self' for “based on” recipes
     """
