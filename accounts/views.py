@@ -3,12 +3,13 @@ from django.shortcuts import render
 from django.contrib.auth import authenticate, logout as auth_logout, login as auth_login, update_session_auth_hash
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
-from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView, UpdateAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from accounts.models import User, ShoppingRecipeModel
-from accounts.serializers import UserDetailSerializer, UserLoginSerializer, UserEditSerializer
+from accounts.serializers import UserDetailSerializer, UserLoginSerializer, UserEditSerializer, \
+    ShoppingRecipeModelSerializer
 
 # Create your views here.
 from recipes.models import IngredientModel, RecipeModel
@@ -227,8 +228,8 @@ class IndividualListView(APIView):
             ingredients_data = IngredientModel.objects.filter(recipe_id=recipeID).values()
 
             """
-            Loop over all ingredients, if serving number for recipe in shopping cart is same as the recipe, 
-                just add the ingredient name and quantity. 
+            Loop over all ingredients, if serving number for recipe in shopping cart is same as the recipe,
+                just add the ingredient name and quantity.
                 If not, re-calculate the quantity .
             """
             for j in range(0, len(ingredients_data)):
@@ -266,10 +267,26 @@ class IndividualListView(APIView):
 
             result.append(
                 {
+                    'id': recipeID,
                     'Recipe Name': original_recipe.name,
                     'Servings': shoppingListServing,
                     'Ingredients': ingredients
                 }
             )
 
+        # print(result)
         return Response(result)
+
+
+class ShoppingRecipeModelView(ListAPIView):
+    serializer_class = ShoppingRecipeModelSerializer
+
+    def get_queryset(self):
+        return ShoppingRecipeModel.objects.filter(user_id=self.request.user.id)
+
+
+class UpdateServingSize(RetrieveAPIView, UpdateAPIView):
+    serializer_class = ShoppingRecipeModelSerializer
+
+    def get_object(self):
+        return get_object_or_404(ShoppingRecipeModel, id=self.kwargs['recipe_id'])

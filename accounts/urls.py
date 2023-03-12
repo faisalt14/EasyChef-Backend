@@ -15,7 +15,8 @@ Including another URLconf
  """
 from django.contrib import admin
 from django.urls import path
-from accounts.views import SignUpView, LoginView, LogoutView, EditProfileView, CombinedListView, IndividualListView
+from accounts.views import SignUpView, LoginView, LogoutView, EditProfileView, CombinedListView, IndividualListView, \
+    ShoppingRecipeModelView, UpdateServingSize
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 urlpatterns = [
@@ -26,6 +27,8 @@ urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('combined-list/', CombinedListView.as_view()),
     path('shopping-list/', IndividualListView.as_view()),
+    path('shopping-list/recipes/', ShoppingRecipeModelView.as_view()),
+    path('shopping-list/update-serving-size/<int:recipe_id>', UpdateServingSize.as_view()),
 ]
 
 
