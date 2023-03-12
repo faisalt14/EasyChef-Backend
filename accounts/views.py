@@ -201,7 +201,12 @@ class CombinedListView(APIView):
 
 class IndividualListView(APIView):
 
+    permission_classes = [IsAuthenticated]
+
     def get(self, request, *args, **kwargs):
+
+        if request.user.is_authenticated == False:
+            return Response({'message': 'Not logged in'}, status=401)
 
         result = []
 
