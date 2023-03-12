@@ -129,7 +129,6 @@ class InteractionModel(models.Model):
     comment = models.CharField(max_length=200, blank=True, null=True)
     published_time = models.DateTimeField(default=datetime.datetime.now)
 
-
     def __str__(self):
         return f"{self.user_id.username}, {self.recipe_id.id}: {self.recipe_id.name} ({'liked' if self.like else 'not liked'}, {'favourited' if self.favourite else 'not favourited'})"
 

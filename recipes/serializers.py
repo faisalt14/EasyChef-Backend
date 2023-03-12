@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from recipes.models import RecipeModel, RecipeMediaModel, StepModel, StepMediaModel, InteractionModel, ReviewMediaModel, IngredientModel
 from datetime import timedelta
+from django.utils import timezone
 
 
 class RecipesSerializer(serializers.ModelSerializer):
@@ -86,9 +87,39 @@ class ReviewMediaSerializer(serializers.ModelSerializer):
 
 class InteractionSerializer(serializers.ModelSerializer):
     media = ReviewMediaSerializer(many=True, read_only=False, required=False)
+    
     class Meta:
         model = InteractionModel
         fields = ['id', 'recipe_id', 'user_id', 'like', 'favourite', 'rating', 'comment', 'published_time', 'media']
+    
+    def create(self, validated_data, user, recipe):
+        interaction = InteractionModel.objects.create()
+
+        interaction.recipe_id = recipe
+        interaction.user_id = user
+        interaction.like = (bool(validated_data.get('like', '')) or validated_data.get('like', '').lower() == 'false')
+        interaction.favourite = (bool(validated_data.get('favourite', '')) or validated_data.get('favourite', '').lower() == 'false')
+        interaction.rating = validated_data.get('rating', 0)
+        interaction.comment = validated_data.get('comment', '')
+        interaction.published_time = timezone.now()
+
+        interaction.save()
+        return interaction
+    
+    def update(self, validated_data, interaction):
+        if validated_data.get('like'):
+            interaction.like = (validated_data.get('like', '').lower() != 'false')
+        if validated_data.get('favourite'):
+            interaction.favourite = (validated_data.get('favourite', '').lower() != 'false')
+        if validated_data.get('rating'):
+            interaction.rating = validated_data.get('rating', 0)
+        if validated_data.get('comment'):
+            interaction.comment = validated_data.get('comment', '')
+            interaction.published_time = timezone.now()
+        
+        interaction.save()
+        return interaction
+        
 
 
 class RecipeSerializer(serializers.ModelSerializer):

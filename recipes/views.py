@@ -12,7 +12,7 @@ from django.utils import timezone
 from accounts.models import User
 from accounts.serializers import UserDetailSerializer
 import json
-from recipes.models import RecipeModel
+from recipes.models import RecipeModel, IngredientModel, InteractionModel, StepMediaModel, ReviewMediaModel
 from recipes.serializers import RecipesSerializer, RecipeSerializer, IngredientSerializer, StepSerializer, RecipeMediaSerializer, StepMediaSerializer, ReviewMediaSerializer, InteractionSerializer
 
 
@@ -355,12 +355,37 @@ class AddInteractionMedia(CreateAPIView):
     serializer_class = ReviewMediaSerializer
     permission_classes = [IsAuthenticated]
 
+    def post(self, request, *args, **kwargs):
+        # Get the interaction, if it exists
+        interaction = InteractionModel.objects.get(id=self.kwargs['interaction_id'])
+        try:
+            # Attempt to create a new ReviewMediaModel
+            review_media = ReviewMediaModel.objects.create(interaction_id=interaction, media=request.FILES['media'])
+        except:
+            # If the above attempt is unsuccessful, respond with error
+            return Response({'message': 'invalid upload'}, status=400)
+        # If a new ReviewMediaModel was created, save it in our database and return
+        review_media.save()
+        return Response({'message': 'media saved'}, status=200)
+
 
 class InteractionView(RetrieveUpdateAPIView):
     serializer_class = InteractionSerializer
     permission_classes = [IsAuthenticated]
 
-    
+    def patch(self, request, *args, **kwargs):
+        serializer = InteractionSerializer(data=request.data)
+        try:
+            # Check if there already exists an InteractionModel between the user and the recipe
+            interaction = InteractionModel.objects.get(user_id=request.user, recipe_id=self.kwargs['recipe_id'])
+        except:
+            # If no InteractionModel exists, create a new one
+            serializer.is_valid(raise_exception=True)
+            serializer.create(request.data, request.user, RecipeModel.objects.get(id=self.kwargs['recipe_id']))
+            return Response({'message': 'Created a new interaction'}, status=200)
+        # If an InteractionModel does exist, update its data instead of making a new one
+        serializer.update(request.data, interaction)
+        return Response({'message': 'Updated an existing interaction'}, status=200)
     
     # I can update my vote
     # mark/unmark a recipe as fav
