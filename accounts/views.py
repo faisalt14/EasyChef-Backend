@@ -122,8 +122,13 @@ def updateQuantity(name: str, ingredients: list, quantity: int):
 
 
 class CombinedListView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
+
+        if request.user.is_authenticated == False:
+            return Response({'message': 'Not logged in'}, status=401)
+
         recipies_in_cart = ShoppingRecipeModel.objects.filter(user_id=self.request.user.id).values()
 
         # loop over each dictionary item in recipies_in_cart to get every ingredient for every recipe
