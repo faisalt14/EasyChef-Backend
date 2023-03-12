@@ -3,7 +3,6 @@ import datetime
 from django.db import models
 from accounts.models import User
 
-
 def get_default_user_id():
     user = User.objects.first()
     if user:
@@ -16,7 +15,6 @@ def get_default_recipe_id():
     if recipe:
         return recipe.id
     return None
-
 
 def get_default_interaction_id():
     interac = InteractionModel.objects.first()
@@ -35,8 +33,7 @@ class RecipeModel(models.Model):
       - 'self' for “based on” recipes
     """
     # change this to reference custom UserModel
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE, null=False, default=get_default_user_id,
-                                related_name="recipes")
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE, null=False, default=get_default_user_id, related_name="recipes")
     name = models.CharField(max_length=100)
     based_on = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name="derived_recipe")
     total_reviews = models.IntegerField(default=0)
@@ -103,7 +100,7 @@ class StepMediaModel(models.Model):
     media = models.FileField(upload_to="step-media/", blank=True)
 
     def __str__(self):
-        return f"Media {self.id} for Step {self.step_id.id}"
+          return f"Media {self.id} for Step {self.step_id.id}"
 
 
 class IngredientModel(models.Model):
@@ -115,33 +112,29 @@ class IngredientModel(models.Model):
     name = models.CharField(max_length=100)
     quantity = models.PositiveIntegerField(default=0)
     unit = models.CharField(max_length=20, default="cups")
-
+    
     def __str__(self):
       return f"{self.name}: {self.id}" 
-
 
 class InteractionModel(models.Model):
     """
     Foreign Keys To Keep Track Of:
       - ReviewMediaModel for the interaction
     """
-    recipe_id = models.ForeignKey("RecipeModel", on_delete=models.CASCADE, related_name="interactions",
-                                  default=get_default_recipe_id)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE, null=False, default=get_default_user_id,
-                                related_name="interactions")
+    recipe_id = models.ForeignKey("RecipeModel", on_delete=models.CASCADE, related_name="interactions", default=get_default_recipe_id)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE, null=False, default=get_default_user_id, related_name="interactions")
     like = models.BooleanField(default=False)
     favourite = models.BooleanField(default=False)
     rating = models.PositiveIntegerField(default=0)
     comment = models.CharField(max_length=200, blank=True, null=True)
     published_time = models.DateTimeField(default=datetime.datetime.now)
 
+
     def __str__(self):
         return f"{self.user_id.username}, {self.recipe_id.id}: {self.recipe_id.name} ({'liked' if self.like else 'not liked'}, {'favourited' if self.favourite else 'not favourited'})"
 
-
 class ReviewMediaModel(models.Model):
-    interaction_id = models.ForeignKey("InteractionModel", on_delete=models.CASCADE, related_name="media",
-                                       default=get_default_interaction_id)
+    interaction_id = models.ForeignKey("InteractionModel",  on_delete=models.CASCADE, related_name="media", default=get_default_interaction_id)
     media = models.FileField(upload_to="review-media/")
 
     def __str__(self):

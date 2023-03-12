@@ -9,10 +9,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from accounts.models import User, ShoppingRecipeModel
 from accounts.serializers import UserDetailSerializer, UserLoginSerializer, UserEditSerializer
+from recipes.serializers import RecipeSerializer, InteractedRecipesSerializer
+from recipes.models import RecipeModel, InteractionModel, IngredientModel
+from django.db.models import Q
 
 # Create your views here.
-from recipes.models import IngredientModel, RecipeModel
-
 
 class SignUpView(CreateAPIView):
     def post(self, request):
@@ -196,3 +197,41 @@ class CombinedListView(APIView):
                         })
 
         return Response(ingredients)
+
+
+class PublishedRecipesView(ListAPIView):
+    serializer_class = InteractedRecipesSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return (
+            RecipeModel.objects
+            .filter(user_id=user)
+            .order_by('-published_time')
+        )
+
+class FavouriteRecipesView(ListAPIView):
+    serializer_class = InteractedRecipesSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return (
+            RecipeModel.objects
+            .filter(interactions__user_id=user, interactions__favourite=True)
+            .prefetch_related('interactions__recipe_id')
+            .order_by('-published_time')
+        )
+
+class RecentRecipesView(ListAPIView):
+    serializer_class = InteractedRecipesSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        interaction_recipe_ids = InteractionModel.objects.filter(user_id=user).values('recipe_id')
+        my_recipes = RecipeModel.objects.filter(user_id=user)
+        lst = RecipeModel.objects.filter(Q(id__in=interaction_recipe_ids) | Q(id__in=my_recipes)).distinct().order_by('-published_time')
+
+        return lst

@@ -123,3 +123,8 @@ class RecipesSerializer(serializers.ModelSerializer):
         model = RecipeModel
         fields = ['name', 'difficulty', 'meal', 'cuisine', 'total_reviews', 'total_likes', 'total_favs']
 
+
+class InteractedRecipesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RecipeModel
+        fields = ['id', 'user_id', 'name', 'difficulty', 'meal', 'cuisine', 'total_reviews', 'total_likes', 'total_favs']

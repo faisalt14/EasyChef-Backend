@@ -8,7 +8,7 @@ from django.utils import timezone
 from recipes.models import RecipeModel, IngredientModel, StepModel, StepMediaModel, RecipeMediaModel
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-from recipes.serializers import RecipesSerializer, RecipeSerializer, IngredientSerializer, StepSerializer, RecipeMediaSerializer, StepMediaSerializer
+from recipes.serializers import RecipesSerializer, RecipeSerializer, IngredientSerializer, StepSerializer, RecipeMediaSerializer, StepMediaSerializer, ReviewMediaSerializer, InteractionSerializer
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from accounts.models import User
@@ -666,3 +666,36 @@ class RecipeDetailView(RetrieveAPIView):
         queryset = self.get_queryset()
         obj = get_object_or_404(queryset, id=self.kwargs['recipe_id'])
         return obj
+
+class DeleteRecipe(DestroyAPIView):
+    # handles DELETE requests
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, *args, **kwargs):
+        recipe = get_object_or_404(RecipeModel, id=kwargs['recipe_id'])
+
+        # Check if the authenticated user is the owner of the recipe
+        if request.user != recipe.user_id:
+            return Response({'message': 'You do not have permission to delete this recipe.'}, status=403)
+
+        recipe.delete()
+        return Response({'message': 'Recipe has been deleted.'}, status=204)
+
+class AddInteractionMedia(CreateAPIView):
+    serializer_class = ReviewMediaSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class InteractionView(RetrieveUpdateAPIView):
+    serializer_class = InteractionSerializer
+    permission_classes = [IsAuthenticated]
+
+    
+    
+    # I can update my vote
+    # mark/unmark a recipe as fav
+    # post a comment
+    # this should update the recipe fields
+    # I can change the servings (this should create a ShoppingListModel)
+
+    
