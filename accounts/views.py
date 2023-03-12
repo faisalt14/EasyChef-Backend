@@ -1,3 +1,4 @@
+import math
 from django.shortcuts import render
 from django.contrib.auth import authenticate, logout as auth_logout, login as auth_login, update_session_auth_hash
 from django.core.exceptions import ValidationError
@@ -7,11 +8,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from accounts.models import User, ShoppingRecipeModel
-from accounts.serializers import UserDetailSerializer, UserLoginSerializer, UserEditSerializer, \
-    AllShoppingListSerializer
+from accounts.serializers import UserDetailSerializer, UserLoginSerializer, UserEditSerializer
 
 # Create your views here.
-from recipes.models import IngredientModel
+from recipes.models import IngredientModel, RecipeModel
 
 
 class SignUpView(CreateAPIView):
@@ -107,19 +107,22 @@ class EditProfileView(APIView):
 def ingredientExists(name: str, ingredients: list):
     for each_dict in ingredients:
         if each_dict['name'] == name:
+            # print('true')
             return True
+
+    # print('false')
     return False
 
 
-def updateQuantity(name: str, ingredients: list, quauntity: int):
+def updateQuantity(name: str, ingredients: list, quantity: int):
     for each_dict in ingredients:
         if each_dict['name'] == name:
-            each_dict['quantity'] += quauntity
+            each_dict['quantity'] += quantity
     return ingredients
 
 
 class CombinedListView(APIView):
-    serializer_class = AllShoppingListSerializer
+    # serializer_class = AllShoppingListSerializer
 
     # def get_queryset(self):
     #     return ShoppingRecipeModel.objects.filter(id=self.request.user.id)
@@ -129,26 +132,73 @@ class CombinedListView(APIView):
         # print(recipies_in_cart)
         # return Response(recipies_in_cart)
 
-        # loop over each dictionary item in recipies_in_cart to get recipe_id
+        # loop over each dictionary item in recipies_in_cart to get every ingredient for every recipe
         ingredients = []
         for i in range(0, len(recipies_in_cart)):
+
             # get recipe_id_id
             recipeID = recipies_in_cart[i]['recipe_id_id']
-            data = IngredientModel.objects.filter(recipe_id=recipeID).values()
+            shoppingListServing = recipies_in_cart[i]['servings_num']
+            original_recipe = RecipeModel.objects.get(id=recipeID)
+            # print(original_recipe.servings_num)
+
+            #
+            ingredients_data = IngredientModel.objects.filter(recipe_id=recipeID).values()
             # print(data)
-            for j in range(0, len(data)):
-                ingredient_name = data[j]['name']
-                ingredient_quantity = data[j]['quantity']
+
+            for j in range(0, len(ingredients_data)):
+                ingredient_name = ingredients_data[j]['name']
+                ingredient_quantity = ingredients_data[j]['quantity']
 
                 if ingredientExists(ingredient_name, ingredients):
-                    ingredients = updateQuantity(ingredient_name, ingredients, ingredient_quantity)
+                    if shoppingListServing == original_recipe.servings_num:
+                        ingredients = updateQuantity(ingredient_name, ingredients, ingredient_quantity)
+
+                    else:
+
+                        """
+                            Formula for calculating the quantity amount: 
+                            
+                            - divide the original recipe quantity by the original serving num to get a quantity value 
+                            equal to 1 serving. 
+                            - Then multiply this quantity for 1 serving amount by the number of servings the shopping 
+                            cart has. 
+                            *Note we always return an int and round up for decimals
+                        """
+                        original_quantity = IngredientModel.objects.get(recipe_id=original_recipe.id,
+                                                                        name=ingredient_name).quantity / original_recipe.servings_num
+                        updated_quantity = original_quantity * shoppingListServing
+                        ingredients = updateQuantity(ingredient_name, ingredients, int(math.ceil(updated_quantity)))
+
+
+
+
                 else:
-                    ingredients.append({
-                        'name': ingredient_name,
-                        'quantity': ingredient_quantity
-                    })
+
+                    if shoppingListServing == original_recipe.servings_num:
+                        ingredients.append({
+                            'name': ingredient_name,
+                            'quantity': ingredient_quantity
+                        })
+
+                    else:
+
+                        """
+                            Formula for calculating the quantity amount: 
+
+                            - divide the original recipe quantity by the original serving num to get a quantity value 
+                            equal to 1 serving. 
+                            - Then multiply this quantity for 1 serving amount by the number of servings the shopping 
+                            cart has. 
+                        """
+                        original_quantity = IngredientModel.objects.get(
+                            recipe_id=original_recipe.id, name=ingredient_name).quantity / original_recipe.servings_num
+                        updated_quantity = original_quantity * shoppingListServing
+
+                        ingredients.append({
+                            'name': ingredient_name,
+                            'quantity': int(math.ceil(updated_quantity))
+                        })
 
         # print(ingredients)
         return Response(ingredients)
-
-
