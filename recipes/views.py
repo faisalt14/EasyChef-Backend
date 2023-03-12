@@ -5,8 +5,10 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from recipes.models import RecipeModel
-from recipes.serializers import RecipesSerializer
+from recipes.models import RecipeModel, IngredientModel
+from recipes.serializers import RecipesSerializer, IngredientSerializer
+from accounts.models import User
+from accounts.serializers import UserDetailSerializer
 
 # Create your views here.
 
@@ -124,3 +126,26 @@ class HomeView(APIView):
                          'Breakfasts' : RecipesSerializer(BreakfastSet, many=True).data,
                          'Lunches': RecipesSerializer(LunchSet, many=True).data,
                          'Dinners': RecipesSerializer(DinnerSet, many=True).data})
+
+class AutocompleteView(ListAPIView):
+    serializer_class = IngredientSerializer
+
+    def get_queryset(self):
+        # Get values from params, default will be 0
+        category = int(self.request.query_params.get('category', '0'))
+        search_query = self.request.query_params.get('query', '')
+        # Set up serializers and querysets based on category, default is the IngredientModel
+        if category == 1:
+            self.serializer_class = RecipesSerializer
+            queryset = RecipeModel.objects.all()
+        elif category == 2:
+            self.serializer_class = UserDetailSerializer
+            queryset = User.objects.all()
+            queryset = queryset.filter(username__icontains=search_query)
+        else:
+            queryset = IngredientModel.objects.filter(recipe_id=None)
+
+        if search_query and category != 2:
+            queryset = queryset.filter(name__icontains=search_query)
+
+        return queryset
