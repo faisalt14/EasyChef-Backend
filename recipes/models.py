@@ -1,5 +1,5 @@
 # Create your models here.
-import datetime
+from django.utils import timezone
 from django.db import models
 from accounts.models import User
 
@@ -39,7 +39,7 @@ class RecipeModel(models.Model):
     total_reviews = models.IntegerField(default=0)
     total_likes = models.IntegerField(default=0)
     total_favs = models.IntegerField(default=0)
-    published_time = models.DateTimeField(default=datetime.datetime.now)
+    published_time = models.DateTimeField(default=timezone.now)
     difficulty_choices = [
           (0, 'Easy'),
           (1, 'Medium'),
@@ -127,7 +127,7 @@ class InteractionModel(models.Model):
     favourite = models.BooleanField(default=False)
     rating = models.PositiveIntegerField(default=0)
     comment = models.CharField(max_length=200, blank=True, null=True)
-    published_time = models.DateTimeField(default=datetime.datetime.now)
+    published_time = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return f"{self.user_id.username}, {self.recipe_id.id}: {self.recipe_id.name} ({'liked' if self.like else 'not liked'}, {'favourited' if self.favourite else 'not favourited'})"
