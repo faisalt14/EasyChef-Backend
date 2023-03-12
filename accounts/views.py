@@ -1,8 +1,11 @@
 import math
+
+from django.http import Http404
 from django.shortcuts import render
 from django.contrib.auth import authenticate, logout as auth_logout, login as auth_login, update_session_auth_hash
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.validators import validate_email
+from rest_framework.exceptions import APIException
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView, UpdateAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -200,7 +203,6 @@ class CombinedListView(APIView):
 
 
 class IndividualListView(APIView):
-
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
@@ -285,6 +287,7 @@ class IndividualListView(APIView):
 
 class ShoppingRecipeModelView(ListAPIView):
     serializer_class = ShoppingRecipeModelSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return ShoppingRecipeModel.objects.filter(user_id=self.request.user.id)
@@ -292,6 +295,24 @@ class ShoppingRecipeModelView(ListAPIView):
 
 class UpdateServingSize(RetrieveAPIView, UpdateAPIView):
     serializer_class = ShoppingRecipeModelSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_object(self):
         return get_object_or_404(ShoppingRecipeModel, id=self.kwargs['recipe_id'])
+
+
+class RemoveFromCart(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+
+        if request.user.is_authenticated == False:
+            return Response({'message': 'Not logged in'}, status=401)
+
+        try:
+            ShoppingRecipeModel.objects.get(recipe_id=self.kwargs['recipe_id'])
+        except ObjectDoesNotExist:
+            raise APIException("Not a valid recipe id.")
+        else:
+            ShoppingRecipeModel.objects.filter(recipe_id=self.kwargs['recipe_id']).delete()
+            return Response("Deleted")
