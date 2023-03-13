@@ -77,11 +77,12 @@ class SearchView(ListAPIView):
     serializer_class = RecipesSerializer
     
     def get_queryset(self):
-        cuisine = self.request.query_params.get('cuisine', 13)
-        meal = self.request.query_params.get('meal', 5)
-        diet = self.request.query_params.get('diet', 5)
+
         # Create the base search results based on simple dropdown filters
-        search_results = RecipeModel.objects.filter(cuisine=cuisine, meal=meal, diet=diet)
+        search_results = RecipeModel.objects.filter(cuisine=int(self.request.query_params.get('cuisine'))) if (int(self.request.query_params.get('cuisine', 14)) < 14) else RecipeModel.objects.all()
+        search_results = search_results.filter(diet=int(self.request.query_params.get('diet', 5))) if (int(self.request.query_params.get('diet', 6)) < 6) else search_results
+        search_results = search_results.filter(meal=int(self.request.query_params.get('meal', 5))) if (int(self.request.query_params.get('meal', 6)) < 6) else search_results
+        
 
         # Check for the search query based on the search category
         category = self.request.query_params.get('category', '')
@@ -97,7 +98,7 @@ class SearchView(ListAPIView):
                                "['Recipe', 'Ingredients', 'User']")
 
         try:
-            cooking_time = int(self.request.query_params.get('cooking_time', ''))
+            cooking_time = int(self.request.query_params.get('cooking_time', 0))
         except:
             raise APIException("Not a valid cooking time filter. Please select a cooking from the following list by inputting its number: "
                                "[0: None, 1: Less than 10 minutes, 2: Between 10 and 30 minutes, 3: Between 30 and 60 minutes, 4: One hour or longer]")
@@ -118,7 +119,7 @@ class HomeView(APIView):
     serializer_class = RecipesSerializer
 
     def get(self, request):
-        PopularSet = RecipeModel.objects.all().order_by('total_reviews')[:6]
+        PopularSet = RecipeModel.objects.all().order_by('-total_reviews')[:6]
         BreakfastSet = RecipeModel.objects.filter(meal=0).order_by('total_favs')[:6]
         LunchSet = RecipeModel.objects.filter(meal=1).order_by('total_favs')[:6]
         DinnerSet = RecipeModel.objects.filter(meal=2).order_by('total_favs')[:6]
