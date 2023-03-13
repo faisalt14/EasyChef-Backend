@@ -372,6 +372,17 @@ class AddInteractionMedia(CreateAPIView):
 class InteractionView(RetrieveUpdateAPIView):
     serializer_class = InteractionSerializer
     permission_classes = [IsAuthenticated]
+    def post(self, request, *args, **kwargs):
+        serializer = InteractionSerializer(data=request.data)
+        try:
+            # Check if there already exists an InteractionModel between the user and the recipe
+            interaction = InteractionModel.objects.get(user_id=request.user, recipe_id=self.kwargs['recipe_id'])
+        except:
+            # If no such InteractionModel exists, create a new one
+            serializer.is_valid(raise_exception=True)
+            serializer.create(request.data, request.user, RecipeModel.objects.get(id=self.kwargs['recipe_id']))
+            return Response({'message': 'Created a new interaction'}, status=200)
+        return Response({'message': 'There already exists an interaction between this user and the recipe. Use a PATCH request instead.'}, status=400)
 
     def patch(self, request, *args, **kwargs):
         serializer = InteractionSerializer(data=request.data)
@@ -379,10 +390,8 @@ class InteractionView(RetrieveUpdateAPIView):
             # Check if there already exists an InteractionModel between the user and the recipe
             interaction = InteractionModel.objects.get(user_id=request.user, recipe_id=self.kwargs['recipe_id'])
         except:
-            # If no InteractionModel exists, create a new one
-            serializer.is_valid(raise_exception=True)
-            serializer.create(request.data, request.user, RecipeModel.objects.get(id=self.kwargs['recipe_id']))
-            return Response({'message': 'Created a new interaction'}, status=200)
+            # If no InteractionModel exists, return with information
+            return Response({'message': 'There is no interaction between this user and the recipe. Use a POST request instead.'}, status=400)
         # If an InteractionModel does exist, update its data instead of making a new one
         serializer.update(request.data, interaction)
         return Response({'message': 'Updated an existing interaction'}, status=200)

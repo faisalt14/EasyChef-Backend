@@ -1,4 +1,5 @@
 # Create your models here.
+import datetime
 from django.utils import timezone
 from django.db import models
 from accounts.models import User
@@ -62,7 +63,7 @@ class RecipeModel(models.Model):
     servings_num = models.IntegerField()
 
     def __str__(self):
-        return self.name
+        return self.name + ' [' + str(self.id) + ']'
 
     def save(self, *args, **kwargs):
         if self.cooking_time != None and self.prep_time != None:
