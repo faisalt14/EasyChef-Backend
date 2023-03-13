@@ -247,8 +247,8 @@ class IndividualListView(APIView):
 
                     ingredients.append(
                         {
-                            'Name': ingredient_name,
-                            'Quantity': ingredient_quantity
+                            'name': ingredient_name,
+                            'quantity': ingredient_quantity
                         }
                     )
                 else:
@@ -267,17 +267,17 @@ class IndividualListView(APIView):
                     updated_quantity = original_quantity * shoppingListServing
                     ingredients.append(
                         {
-                            'Name': ingredient_name,
-                            'Quantity': int(math.ceil(updated_quantity))
+                            'name': ingredient_name,
+                            'quantity': int(math.ceil(updated_quantity))
                         }
                     )
 
             result.append(
                 {
-                    'Recipe id': recipeID,
-                    'Recipe Name': original_recipe.name,
-                    'Servings': shoppingListServing,
-                    'Ingredients': ingredients
+                    'recipe_id': recipeID,
+                    'name': original_recipe.name,
+                    'servings_num': shoppingListServing,
+                    'ingredients': ingredients
                 }
             )
 
