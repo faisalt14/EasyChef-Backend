@@ -35,21 +35,7 @@ class UserEditSerializer(serializers.ModelSerializer):
         }
 
 
-# class AllShoppingListSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = ShoppingRecipeModel
-#         fields = ['user_id', 'recipe_id', 'servings_num']
-
-# class IndividualShoppingListSerializer(serializers.ModelSerializer):
-#
-#     class Meta:
-#         model = ShoppingRecipeModel
-#         fields = ['recipe_id_id']
-
-
 class ShoppingRecipeModelSerializer(serializers.ModelSerializer):
-    # recipe_name = serializers.CharField(source='recipe_id.name')
-
     class Meta:
         model = ShoppingRecipeModel
         fields = ['recipe_id', 'servings_num']

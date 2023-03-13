@@ -112,10 +112,8 @@ class EditProfileView(APIView):
 def ingredientExists(name: str, ingredients: list):
     for each_dict in ingredients:
         if each_dict['name'] == name:
-            # print('true')
             return True
 
-    # print('false')
     return False
 
 
@@ -282,16 +280,7 @@ class IndividualListView(APIView):
                 }
             )
 
-        # print(result)
         return Response(result)
-
-
-# class ShoppingRecipeModelView(ListAPIView):
-#     serializer_class = ShoppingRecipeModelSerializer
-#     permission_classes = [IsAuthenticated]
-#
-#     def get_queryset(self):
-#         return ShoppingRecipeModel.objects.filter(user_id=self.request.user.id)
 
 
 class UpdateServingSize(RetrieveAPIView, UpdateAPIView):
