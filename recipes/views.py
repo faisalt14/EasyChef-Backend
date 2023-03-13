@@ -358,9 +358,9 @@ class AddInteractionMedia(CreateAPIView):
 
     def post(self, request, *args, **kwargs):
         # Get the interaction, if it exists
+        interaction = get_object_or_404(InteractionModel, id=self.kwargs['interaction_id'])
         try:
             # Attempt to create a new ReviewMediaModel
-            interaction = InteractionModel.objects.get(id=self.kwargs['interaction_id'])
             review_media = ReviewMediaModel.objects.create(interaction_id=interaction, media=request.FILES['media'])
         except:
             # If the above attempt is unsuccessful, respond with error
