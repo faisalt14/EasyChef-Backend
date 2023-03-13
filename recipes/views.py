@@ -619,21 +619,6 @@ class CreateRecipeView(RetrieveUpdateAPIView, CreateAPIView):
 
         return Response(serializer.data)
 
-class IngredientAutocompleteView(ListAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = IngredientSerializer
-    queryset = IngredientModel.objects.all()
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        search_query = self.request.query_params.get('query', '')
-        if search_query:
-            queryset = queryset.filter(name__icontains=search_query, recipe_id=None)
-        else:
-            queryset = queryset.filter(recipe_id=None)
-        return queryset
-
-
 class CreateStepView(CreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = StepSerializer

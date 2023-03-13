@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from accounts.models import User, ShoppingRecipeModel
 from accounts.serializers import UserDetailSerializer, UserLoginSerializer, UserEditSerializer
-from recipes.serializers import RecipeSerializer, InteractedRecipesSerializer
+from recipes.serializers import RecipeSerializer, RecipesSerializer
 from recipes.models import RecipeModel, InteractionModel, IngredientModel
 from django.db.models import Q
 
@@ -200,7 +200,7 @@ class CombinedListView(APIView):
 
 
 class PublishedRecipesView(ListAPIView):
-    serializer_class = InteractedRecipesSerializer
+    serializer_class = RecipesSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -212,7 +212,7 @@ class PublishedRecipesView(ListAPIView):
         )
 
 class FavouriteRecipesView(ListAPIView):
-    serializer_class = InteractedRecipesSerializer
+    serializer_class = RecipesSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -225,7 +225,7 @@ class FavouriteRecipesView(ListAPIView):
         )
 
 class RecentRecipesView(ListAPIView):
-    serializer_class = InteractedRecipesSerializer
+    serializer_class = RecipesSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
