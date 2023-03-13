@@ -1,5 +1,6 @@
 # Create your models here.
 import datetime
+from django.utils import timezone
 from django.db import models
 from accounts.models import User
 
@@ -40,7 +41,7 @@ class RecipeModel(models.Model):
     total_likes = models.IntegerField(default=0)
     total_favs = models.IntegerField(default=0)
     avg_rating = models.FloatField(default=0)
-    published_time = models.DateTimeField(default=datetime.datetime.now)
+    published_time = models.DateTimeField(default=timezone.now)
     difficulty_choices = [
           (0, 'Easy'),
           (1, 'Medium'),
@@ -63,13 +64,29 @@ class RecipeModel(models.Model):
     servings_num = models.IntegerField()
 
     def __str__(self):
-        return self.name
+        return self.name + ' [' + str(self.id) + ']'
 
     def save(self, *args, **kwargs):
         if self.cooking_time != None and self.prep_time != None:
             self.total_time = self.cooking_time + self.prep_time
         self.calculated_total_time = self.calculated_cook_time + self.calculated_prep_time
         super().save(*args, **kwargs)
+    
+    def update_interactions(self):
+        self.total_likes = len(self.interactions.filter(like=True))
+        self.total_favs = len(self.interactions.filter(favourite=True))
+        self.total_reviews = len(self.interactions.filter(rating__gt=0))
+        
+        acc = 0
+        for interaction in self.interactions.all():
+            if interaction.rating > 0:
+                acc += interaction.rating
+        if self.total_reviews:
+            self.avg_rating = round(acc/self.total_reviews, 1)
+        else:
+            self.avg_rating = 0
+        self.save()
+        
 
 class RecipeMediaModel(models.Model):
     recipe_id = models.ForeignKey(RecipeModel, on_delete=models.CASCADE, related_name="media", blank=True, null=True)
@@ -128,8 +145,7 @@ class InteractionModel(models.Model):
     favourite = models.BooleanField(default=False)
     rating = models.PositiveIntegerField(default=0)
     comment = models.CharField(max_length=200, blank=True, null=True)
-    published_time = models.DateTimeField(default=datetime.datetime.now)
-
+    published_time = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return f"{self.user_id.username}, {self.recipe_id.id}: {self.recipe_id.name} ({'liked' if self.like else 'not liked'}, {'favourited' if self.favourite else 'not favourited'})"

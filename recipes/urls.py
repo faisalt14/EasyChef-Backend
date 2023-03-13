@@ -16,6 +16,6 @@ urlpatterns = [
     path('ingredients/create/', CreateIngredientView.as_view()),
     path('<recipe_id>/details/', RecipeDetailView.as_view()),
     path('<recipe_id>/details/interaction/', InteractionView.as_view()),
-    path('<interaction_id>/add-media/', AddInteractionMedia.as_view()),
+    path('interactions/<interaction_id>/add-media/', AddInteractionMedia.as_view()),
     path('<recipe_id>/delete/', DeleteRecipe.as_view())
 ]
