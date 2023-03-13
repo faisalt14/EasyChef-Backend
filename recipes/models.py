@@ -81,7 +81,10 @@ class RecipeModel(models.Model):
         for interaction in self.interactions.all():
             if interaction.rating > 0:
                 acc += interaction.rating
-        self.avg_rating = round(acc/self.total_reviews, 1)
+        if self.total_reviews:
+            self.avg_rating = round(acc/self.total_reviews, 1)
+        else:
+            self.avg_rating = 0
         self.save()
         
 
