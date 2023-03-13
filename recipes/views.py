@@ -9,6 +9,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from datetime import timedelta
 from django.utils import timezone
+from django.shortcuts import get_object_or_404
 from accounts.models import User
 from accounts.serializers import UserDetailSerializer
 import json
@@ -357,9 +358,9 @@ class AddInteractionMedia(CreateAPIView):
 
     def post(self, request, *args, **kwargs):
         # Get the interaction, if it exists
-        interaction = InteractionModel.objects.get(id=self.kwargs['interaction_id'])
         try:
             # Attempt to create a new ReviewMediaModel
+            interaction = InteractionModel.objects.get(id=self.kwargs['interaction_id'])
             review_media = ReviewMediaModel.objects.create(interaction_id=interaction, media=request.FILES['media'])
         except:
             # If the above attempt is unsuccessful, respond with error
@@ -383,9 +384,8 @@ class InteractionView(RetrieveUpdateAPIView):
             serializer.is_valid(raise_exception=True)
             if (not request.data.get('comment')) != (not request.data.get('rating')):
                 return Response({'message': 'ratings and comments must be paired.'}, status=400)
-            serializer.create(request.data, request.user, RecipeModel.objects.get(id=self.kwargs['recipe_id']))
+            serializer.create(request.data, request.user, get_object_or_404(RecipeModel, id=self.kwargs['recipe_id']))
             return Response({'message': 'Created a new interaction'}, status=200)
-        print(request.user)
         print(InteractionModel.objects.get(user_id=request.user, recipe_id=self.kwargs['recipe_id']))
         return Response({'message': 'There already exists an interaction between this user and the recipe. Use a PATCH request instead.'}, status=400)
 
