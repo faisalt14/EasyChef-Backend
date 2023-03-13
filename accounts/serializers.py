@@ -48,8 +48,8 @@ class UserEditSerializer(serializers.ModelSerializer):
 
 
 class ShoppingRecipeModelSerializer(serializers.ModelSerializer):
-    recipe_name = serializers.CharField(source='recipe_id.name')
+    # recipe_name = serializers.CharField(source='recipe_id.name')
 
     class Meta:
         model = ShoppingRecipeModel
-        fields = ['user_id', 'recipe_id', 'recipe_name', 'servings_num']
+        fields = ['recipe_id', 'servings_num']
