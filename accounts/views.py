@@ -274,7 +274,7 @@ class IndividualListView(APIView):
 
             result.append(
                 {
-                    'id': recipeID,
+                    'Recipe id': recipeID,
                     'Recipe Name': original_recipe.name,
                     'Servings': shoppingListServing,
                     'Ingredients': ingredients
@@ -285,12 +285,12 @@ class IndividualListView(APIView):
         return Response(result)
 
 
-class ShoppingRecipeModelView(ListAPIView):
-    serializer_class = ShoppingRecipeModelSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        return ShoppingRecipeModel.objects.filter(user_id=self.request.user.id)
+# class ShoppingRecipeModelView(ListAPIView):
+#     serializer_class = ShoppingRecipeModelSerializer
+#     permission_classes = [IsAuthenticated]
+#
+#     def get_queryset(self):
+#         return ShoppingRecipeModel.objects.filter(user_id=self.request.user.id)
 
 
 class UpdateServingSize(RetrieveAPIView, UpdateAPIView):
@@ -298,7 +298,7 @@ class UpdateServingSize(RetrieveAPIView, UpdateAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        return get_object_or_404(ShoppingRecipeModel, id=self.kwargs['recipe_id'])
+        return get_object_or_404(ShoppingRecipeModel, recipe_id=self.kwargs['recipe_id'])
 
 
 class RemoveFromCart(APIView):
