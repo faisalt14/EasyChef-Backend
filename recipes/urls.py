@@ -1,12 +1,12 @@
 from django.urls import path
-from recipes.views import AllRecipes, PopularRecipes, SearchView, HomeView, IngredientAutocompleteView, CreateIngredientView, CreateRecipeView, RemixRecipeView, CreateStepView, RecipeDetailView, AddStepMedia, AddRecipeMedia, AddInteractionMedia, InteractionView, DeleteRecipe
+from recipes.views import AllRecipes, PopularRecipes, SearchView, HomeView, CreateIngredientView, CreateRecipeView, RemixRecipeView, CreateStepView, RecipeDetailView, AddStepMedia, AddRecipeMedia, AddInteractionMedia, InteractionView, DeleteRecipe, AutocompleteView
 
 urlpatterns = [
     path('all-recipes/', AllRecipes.as_view()),
     path('popular/<str:filter>/', PopularRecipes.as_view()),
     path('search/', SearchView.as_view()),
     path('', HomeView.as_view()),
-    path('ingredients/autocomplete/', IngredientAutocompleteView.as_view()),
+    path('ingredients/autocomplete/', AutocompleteView.as_view()),
     path('create-recipe/', CreateRecipeView.as_view()),
     path('<int:recipe_id>/', CreateRecipeView.as_view()), 
     path('<int:recipe_id>/remix-recipe/', RemixRecipeView.as_view()),
