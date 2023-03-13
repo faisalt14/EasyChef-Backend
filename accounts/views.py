@@ -6,7 +6,8 @@ from django.contrib.auth import authenticate, logout as auth_logout, login as au
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.validators import validate_email
 from rest_framework.exceptions import APIException
-from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView, UpdateAPIView, get_object_or_404
+from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView, UpdateAPIView, get_object_or_404, \
+    DestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -301,21 +302,17 @@ class UpdateServingSize(RetrieveAPIView, UpdateAPIView):
         return get_object_or_404(ShoppingRecipeModel, recipe_id=self.kwargs['recipe_id'])
 
 
-class RemoveFromCart(APIView):
+class RemoveFromCart(DestroyAPIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, *args, **kwargs):
-
+    def delete(self, request, *args, **kwargs):
         if request.user.is_authenticated == False:
             return Response({'message': 'Not logged in'}, status=401)
 
-        try:
-            ShoppingRecipeModel.objects.get(recipe_id=self.kwargs['recipe_id'])
-        except ObjectDoesNotExist:
-            raise APIException("Not a valid recipe id.")
-        else:
-            ShoppingRecipeModel.objects.filter(recipe_id=self.kwargs['recipe_id']).delete()
-            return Response({'message': 'recipe deleted'})
+        recipe = get_object_or_404(ShoppingRecipeModel, recipe_id=kwargs['recipe_id'])
+
+        recipe.delete()
+        return Response({'message': 'Recipe has been deleted.'}, status=204)
 
 
 class EmptyShoppingCart(APIView):
