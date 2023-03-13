@@ -1,8 +1,8 @@
 # Create your models here.
 import datetime
+from django.utils import timezone
 from django.db import models
 from accounts.models import User
-
 
 def get_default_user_id():
     user = User.objects.first()
@@ -16,7 +16,6 @@ def get_default_recipe_id():
     if recipe:
         return recipe.id
     return None
-
 
 def get_default_interaction_id():
     interac = InteractionModel.objects.first()
@@ -35,14 +34,14 @@ class RecipeModel(models.Model):
       - 'self' for “based on” recipes
     """
     # change this to reference custom UserModel
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE, null=False, default=get_default_user_id,
-                                related_name="recipes")
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE, null=False, default=get_default_user_id, related_name="recipes")
     name = models.CharField(max_length=100)
     based_on = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name="derived_recipe")
     total_reviews = models.IntegerField(default=0)
     total_likes = models.IntegerField(default=0)
     total_favs = models.IntegerField(default=0)
-    published_time = models.DateTimeField(default=datetime.datetime.now)
+    avg_rating = models.FloatField(default=0)
+    published_time = models.DateTimeField(default=timezone.now)
     difficulty_choices = [
           (0, 'Easy'),
           (1, 'Medium'),
@@ -65,13 +64,29 @@ class RecipeModel(models.Model):
     servings_num = models.IntegerField()
 
     def __str__(self):
-        return self.name
+        return self.name + ' [' + str(self.id) + ']'
 
     def save(self, *args, **kwargs):
         if self.cooking_time != None and self.prep_time != None:
             self.total_time = self.cooking_time + self.prep_time
         self.calculated_total_time = self.calculated_cook_time + self.calculated_prep_time
         super().save(*args, **kwargs)
+    
+    def update_interactions(self):
+        self.total_likes = len(self.interactions.filter(like=True))
+        self.total_favs = len(self.interactions.filter(favourite=True))
+        self.total_reviews = len(self.interactions.filter(rating__gt=0))
+        
+        acc = 0
+        for interaction in self.interactions.all():
+            if interaction.rating > 0:
+                acc += interaction.rating
+        if self.total_reviews:
+            self.avg_rating = round(acc/self.total_reviews, 1)
+        else:
+            self.avg_rating = 0
+        self.save()
+        
 
 class RecipeMediaModel(models.Model):
     recipe_id = models.ForeignKey(RecipeModel, on_delete=models.CASCADE, related_name="media", blank=True, null=True)
@@ -103,7 +118,7 @@ class StepMediaModel(models.Model):
     media = models.FileField(upload_to="step-media/", blank=True)
 
     def __str__(self):
-        return f"Media {self.id} for Step {self.step_id.id}"
+          return f"Media {self.id} for Step {self.step_id.id}"
 
 
 class IngredientModel(models.Model):
@@ -115,33 +130,28 @@ class IngredientModel(models.Model):
     name = models.CharField(max_length=100)
     quantity = models.PositiveIntegerField(default=0)
     unit = models.CharField(max_length=20, default="cups")
-
+    
     def __str__(self):
       return f"{self.name}: {self.id}" 
-
 
 class InteractionModel(models.Model):
     """
     Foreign Keys To Keep Track Of:
       - ReviewMediaModel for the interaction
     """
-    recipe_id = models.ForeignKey("RecipeModel", on_delete=models.CASCADE, related_name="interactions",
-                                  default=get_default_recipe_id)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE, null=False, default=get_default_user_id,
-                                related_name="interactions")
+    recipe_id = models.ForeignKey("RecipeModel", on_delete=models.CASCADE, related_name="interactions", default=get_default_recipe_id)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE, null=False, default=get_default_user_id, related_name="interactions")
     like = models.BooleanField(default=False)
     favourite = models.BooleanField(default=False)
     rating = models.PositiveIntegerField(default=0)
     comment = models.CharField(max_length=200, blank=True, null=True)
-    published_time = models.DateTimeField(default=datetime.datetime.now)
+    published_time = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return f"{self.user_id.username}, {self.recipe_id.id}: {self.recipe_id.name} ({'liked' if self.like else 'not liked'}, {'favourited' if self.favourite else 'not favourited'})"
 
-
 class ReviewMediaModel(models.Model):
-    interaction_id = models.ForeignKey("InteractionModel", on_delete=models.CASCADE, related_name="media",
-                                       default=get_default_interaction_id)
+    interaction_id = models.ForeignKey("InteractionModel",  on_delete=models.CASCADE, related_name="media", default=get_default_interaction_id)
     media = models.FileField(upload_to="review-media/")
 
     def __str__(self):
