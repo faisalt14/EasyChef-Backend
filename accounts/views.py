@@ -315,7 +315,7 @@ class RemoveFromCart(APIView):
             raise APIException("Not a valid recipe id.")
         else:
             ShoppingRecipeModel.objects.filter(recipe_id=self.kwargs['recipe_id']).delete()
-            return Response("Deleted")
+            return Response({'message': 'recipe deleted'})
 
 
 class EmptyShoppingCart(APIView):
@@ -335,4 +335,4 @@ class EmptyShoppingCart(APIView):
 
         ShoppingRecipeModel.objects.filter(user_id=self.request.user.id).delete()
 
-        return Response("Shopping Cart Cleared")
+        return Response({"message": "Shopping Cart Cleared"})
