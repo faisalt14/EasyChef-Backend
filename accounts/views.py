@@ -63,7 +63,7 @@ class LogoutView(APIView):
 class EditProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self, request):
+    def patch(self, request):
         if request.user.is_authenticated == False:
             return Response({'message': 'Not logged in'}, status=401)
 
