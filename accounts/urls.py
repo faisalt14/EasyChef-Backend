@@ -12,11 +12,10 @@ Class-based views
 Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
- """
+"""
 from django.contrib import admin
 from django.urls import path
-from accounts.views import SignUpView, LoginView, LogoutView, EditProfileView, CombinedListView, IndividualListView, \
-    UpdateServingSize, RemoveFromCart, EmptyShoppingCart
+from accounts.views import SignUpView, LoginView, LogoutView, EditProfileView, CombinedListView
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 urlpatterns = [
@@ -26,12 +25,4 @@ urlpatterns = [
     path('profile/edit/', EditProfileView.as_view()),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('combined-list/', CombinedListView.as_view()),
-    path('shopping-list/', IndividualListView.as_view()),
-    # path('shopping-list/recipes/', ShoppingRecipeModelView.as_view()),
-    path('shopping-list/update-serving-size/<int:recipe_id>/', UpdateServingSize.as_view()),
-    path('shopping-list/remove/<int:recipe_id>/', RemoveFromCart.as_view()),
-    path('shopping-list/clear/', EmptyShoppingCart.as_view()),
-
 ]
-
-

@@ -2,8 +2,6 @@ from rest_framework import serializers
 from accounts.models import User, ShoppingRecipeModel
 from rest_framework.response import Response
 
-from recipes.models import RecipeModel
-
 
 class UserDetailSerializer(serializers.ModelSerializer):
     class Meta:
@@ -35,7 +33,7 @@ class UserEditSerializer(serializers.ModelSerializer):
         }
 
 
-class ShoppingRecipeModelSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ShoppingRecipeModel
-        fields = ['recipe_id', 'servings_num']
+# class AllShoppingListSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = ShoppingRecipeModel
+#         fields = ['user_id', 'recipe_id', 'servings_num']
