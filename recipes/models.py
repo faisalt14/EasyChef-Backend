@@ -49,7 +49,7 @@ class RecipeModel(models.Model):
       ]
     meal_choices = [(0, "Breakfast"), (1, "Lunch"), (2, "Dinner"), (3, "Desserts"), (4, "Snacks"), (5, "Other")]
     diet_choices = [(0, "Vegan"), (1, "Vegetarian"), (2, "Gluten-Free"), (3, "Halal"), (4, "Kosher"), (5, "None") ]
-    cuisine_choices = [(0, "African"), (1, "Carribean"), (2, "East Asian"), (3, "European"), (4, "French"), (5, "Italian"), (6, "Middle-Eastern"), (7, "North American"),
+    cuisine_choices = [(0, "African"), (1, "Caribbean"), (2, "East Asian"), (3, "European"), (4, "French"), (5, "Italian"), (6, "Middle-Eastern"), (7, "North American"),
     (8, "Oceanic"), (9, "Russian"), (10, "Spanish"), (11, "South American"),  (12, "South Asian"), (13, "Other")]
     difficulty = models.IntegerField(choices=difficulty_choices)
     meal = models.IntegerField(choices=meal_choices)
