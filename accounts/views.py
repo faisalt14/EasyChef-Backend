@@ -1,14 +1,19 @@
 import math
+
+from django.http import Http404
 from django.shortcuts import render
 from django.contrib.auth import authenticate, logout as auth_logout, login as auth_login, update_session_auth_hash
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.validators import validate_email
-from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView
+from rest_framework.exceptions import APIException
+from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView, UpdateAPIView, get_object_or_404, \
+    DestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from accounts.models import User, ShoppingRecipeModel
-from accounts.serializers import UserDetailSerializer, UserLoginSerializer, UserEditSerializer
+from accounts.serializers import UserDetailSerializer, UserLoginSerializer, UserEditSerializer, \
+    ShoppingRecipeModelSerializer
 
 # Create your views here.
 from recipes.models import IngredientModel, RecipeModel
@@ -107,10 +112,8 @@ class EditProfileView(APIView):
 def ingredientExists(name: str, ingredients: list):
     for each_dict in ingredients:
         if each_dict['name'] == name:
-            # print('true')
             return True
 
-    # print('false')
     return False
 
 
@@ -152,12 +155,12 @@ class CombinedListView(APIView):
                     else:
 
                         """
-                            Formula for calculating the quantity amount: 
-                            
-                            - divide the original recipe quantity by the original serving num to get a quantity value 
-                            equal to 1 serving. 
-                            - Then multiply this quantity for 1 serving amount by the number of servings the shopping 
-                            cart has. 
+                            Formula for calculating the quantity amount:
+
+                            - divide the original recipe quantity by the original serving num to get a quantity value
+                            equal to 1 serving.
+                            - Then multiply this quantity for 1 serving amount by the number of servings the shopping
+                            cart has.
                             *Note we always return an int and round up for decimals
                         """
                         original_quantity = IngredientModel.objects.get(recipe_id=original_recipe.id,
@@ -179,12 +182,12 @@ class CombinedListView(APIView):
                     else:
 
                         """
-                            Formula for calculating the quantity amount: 
+                            Formula for calculating the quantity amount:
 
-                            - divide the original recipe quantity by the original serving num to get a quantity value 
-                            equal to 1 serving. 
-                            - Then multiply this quantity for 1 serving amount by the number of servings the shopping 
-                            cart has. 
+                            - divide the original recipe quantity by the original serving num to get a quantity value
+                            equal to 1 serving.
+                            - Then multiply this quantity for 1 serving amount by the number of servings the shopping
+                            cart has.
                         """
                         original_quantity = IngredientModel.objects.get(
                             recipe_id=original_recipe.id, name=ingredient_name).quantity / original_recipe.servings_num
@@ -196,3 +199,118 @@ class CombinedListView(APIView):
                         })
 
         return Response(ingredients)
+
+
+class IndividualListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+
+        if request.user.is_authenticated == False:
+            return Response({'message': 'Not logged in'}, status=401)
+
+        result = []
+
+        # All recipes this user has interacted with (created, liked, commented, favourited)
+        recipies_in_cart = ShoppingRecipeModel.objects.filter(user_id=self.request.user.id).values()
+
+        # Loop over each recipe and get all ingredients for it
+        for i in range(0, len(recipies_in_cart)):
+
+            recipeID = recipies_in_cart[i]['recipe_id_id']
+            shoppingListServing = recipies_in_cart[i]['servings_num']
+            original_recipe = RecipeModel.objects.get(id=recipeID)
+
+            # List of ingredients for this specific recipe
+            # Form: [
+            #         {
+            #         'Name':
+            #          'Quantity':
+            #           }, ... ,
+            #         ]
+            ingredients = []
+
+            # All ingredients for this specific recipe
+            ingredients_data = IngredientModel.objects.filter(recipe_id=recipeID).values()
+
+            """
+            Loop over all ingredients, if serving number for recipe in shopping cart is same as the recipe,
+                just add the ingredient name and quantity.
+                If not, re-calculate the quantity .
+            """
+            for j in range(0, len(ingredients_data)):
+                ingredient_name = ingredients_data[j]['name']
+                ingredient_quantity = ingredients_data[j]['quantity']
+
+                if shoppingListServing == original_recipe.servings_num:
+
+                    ingredients.append(
+                        {
+                            'name': ingredient_name,
+                            'quantity': ingredient_quantity
+                        }
+                    )
+                else:
+
+                    """
+                        Formula for calculating the quantity amount:
+
+                        - divide the original recipe quantity by the original serving num to get a quantity value
+                        equal to 1 serving.
+                        - Then multiply this quantity for 1 serving amount by the number of servings the shopping
+                        cart has.
+                        *Note we always return an int and round up for decimals
+                    """
+                    original_quantity = IngredientModel.objects.get(recipe_id=original_recipe.id,
+                                                                    name=ingredient_name).quantity / original_recipe.servings_num
+                    updated_quantity = original_quantity * shoppingListServing
+                    ingredients.append(
+                        {
+                            'name': ingredient_name,
+                            'quantity': int(math.ceil(updated_quantity))
+                        }
+                    )
+
+            result.append(
+                {
+                    'recipe_id': recipeID,
+                    'name': original_recipe.name,
+                    'servings_num': shoppingListServing,
+                    'ingredients': ingredients
+                }
+            )
+
+        return Response(result)
+
+
+class UpdateServingSize(RetrieveAPIView, UpdateAPIView):
+    serializer_class = ShoppingRecipeModelSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return get_object_or_404(ShoppingRecipeModel, recipe_id=self.kwargs['recipe_id'])
+
+
+class RemoveFromCart(DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, *args, **kwargs):
+        if request.user.is_authenticated == False:
+            return Response({'message': 'Not logged in'}, status=401)
+
+        recipe = get_object_or_404(ShoppingRecipeModel, recipe_id=kwargs['recipe_id'])
+
+        recipe.delete()
+        return Response({'message': 'Recipe has been deleted.'}, status=204)
+
+
+class EmptyShoppingCart(DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, *args, **kwargs):
+        if request.user.is_authenticated == False:
+            return Response({'message': 'Not logged in'}, status=401)
+
+        ShoppingRecipeModel.objects.filter(user_id=self.request.user.id).delete()
+
+        return Response({"message": "Shopping Cart Cleared"})
