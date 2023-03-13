@@ -6,7 +6,7 @@ urlpatterns = [
     path('popular/<str:filter>/', PopularRecipes.as_view()),
     path('search/', SearchView.as_view()),
     path('', HomeView.as_view()),
-    path('ingredients/autocomplete/', AutocompleteView.as_view()),
+    path('autocomplete/', AutocompleteView.as_view()),
     path('create-recipe/', CreateRecipeView.as_view()),
     path('<int:recipe_id>/', CreateRecipeView.as_view()), 
     path('<int:recipe_id>/remix-recipe/', RemixRecipeView.as_view()),
