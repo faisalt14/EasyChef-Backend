@@ -372,6 +372,7 @@ class AddInteractionMedia(CreateAPIView):
 class InteractionView(RetrieveUpdateAPIView):
     serializer_class = InteractionSerializer
     permission_classes = [IsAuthenticated]
+    
     def post(self, request, *args, **kwargs):
         serializer = InteractionSerializer(data=request.data)
         try:
@@ -380,8 +381,12 @@ class InteractionView(RetrieveUpdateAPIView):
         except:
             # If no such InteractionModel exists, create a new one
             serializer.is_valid(raise_exception=True)
+            if (not request.data.get('comment')) != (not request.data.get('rating')):
+                return Response({'message': 'ratings and comments must be paired.'}, status=400)
             serializer.create(request.data, request.user, RecipeModel.objects.get(id=self.kwargs['recipe_id']))
             return Response({'message': 'Created a new interaction'}, status=200)
+        print(request.user)
+        print(InteractionModel.objects.get(user_id=request.user, recipe_id=self.kwargs['recipe_id']))
         return Response({'message': 'There already exists an interaction between this user and the recipe. Use a PATCH request instead.'}, status=400)
 
     def patch(self, request, *args, **kwargs):
@@ -393,6 +398,8 @@ class InteractionView(RetrieveUpdateAPIView):
             # If no InteractionModel exists, return with information
             return Response({'message': 'There is no interaction between this user and the recipe. Use a POST request instead.'}, status=400)
         # If an InteractionModel does exist, update its data instead of making a new one
+        if (not request.data.get('comment')) != (not request.data.get('rating')):
+            return Response({'message': 'ratings and comments must be paired.'}, status=400)
         serializer.update(request.data, interaction)
         return Response({'message': 'Updated an existing interaction'}, status=200)
     

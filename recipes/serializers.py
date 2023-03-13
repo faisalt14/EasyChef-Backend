@@ -102,11 +102,13 @@ class InteractionSerializer(serializers.ModelSerializer):
         interaction.rating = validated_data.get('rating', 0)
         interaction.comment = validated_data.get('comment', '')
         interaction.published_time = timezone.now()
-
+        
         interaction.save()
+        recipe.update_interactions()
         return interaction
     
     def update(self, validated_data, interaction):
+        recipe = interaction.recipe_id
         if validated_data.get('like'):
             interaction.like = (validated_data.get('like', '').lower() != 'false')
         if validated_data.get('favourite'):
@@ -118,6 +120,7 @@ class InteractionSerializer(serializers.ModelSerializer):
             interaction.published_time = timezone.now()
         
         interaction.save()
+        recipe.update_interactions()
         return interaction
         
 

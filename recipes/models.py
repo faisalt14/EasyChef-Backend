@@ -40,6 +40,7 @@ class RecipeModel(models.Model):
     total_reviews = models.IntegerField(default=0)
     total_likes = models.IntegerField(default=0)
     total_favs = models.IntegerField(default=0)
+    avg_rating = models.FloatField(default=0)
     published_time = models.DateTimeField(default=timezone.now)
     difficulty_choices = [
           (0, 'Easy'),
@@ -70,6 +71,19 @@ class RecipeModel(models.Model):
             self.total_time = self.cooking_time + self.prep_time
         self.calculated_total_time = self.calculated_cook_time + self.calculated_prep_time
         super().save(*args, **kwargs)
+    
+    def update_interactions(self):
+        self.total_likes = len(self.interactions.filter(like=True))
+        self.total_favs = len(self.interactions.filter(favourite=True))
+        self.total_reviews = len(self.interactions.filter(rating__gt=0))
+        
+        acc = 0
+        for interaction in self.interactions.all():
+            if interaction.rating > 0:
+                acc += interaction.rating
+        self.avg_rating = round(acc/self.total_reviews, 1)
+        self.save()
+        
 
 class RecipeMediaModel(models.Model):
     recipe_id = models.ForeignKey(RecipeModel, on_delete=models.CASCADE, related_name="media", blank=True, null=True)
