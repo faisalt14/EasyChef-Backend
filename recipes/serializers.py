@@ -2,6 +2,8 @@ from rest_framework import serializers
 from .models import RecipeModel, RecipeMediaModel, StepModel, StepMediaModel, InteractionModel, ReviewMediaModel, IngredientModel
 from datetime import timedelta
 from django.utils import timezone
+from rest_framework.validators import UniqueValidator
+
 
 class RecipeMediaSerializer(serializers.ModelSerializer):
     recipe_id = serializers.PrimaryKeyRelatedField(queryset=RecipeModel.objects.all(), required=False)
@@ -206,6 +208,8 @@ class RecipesSerializer(serializers.ModelSerializer):
 class IngredientSerializer(serializers.ModelSerializer):
     recipe_id = serializers.PrimaryKeyRelatedField(queryset=RecipeModel.objects.all(), required=False)
     # quantity = serializers.IntegerField()
+    name = serializers.CharField(validators=[UniqueValidator(queryset=IngredientModel.objects.all(), message='Ingredient with this name already exists.')])
+
     class Meta:
         model = IngredientModel
         fields = ['id', 'recipe_id', 'name', 'quantity', 'unit']

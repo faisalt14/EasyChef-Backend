@@ -349,6 +349,9 @@ class CreateIngredientView(CreateAPIView):
     serializer_class = IngredientSerializer
     
     def perform_create(self, serializer):
+        name = serializer.validated_data.get('name')
+        if IngredientModel.objects.filter(name=name).exists():
+            return Response({'message': 'Ingredient with this name already exists.'})
         serializer.save()
         return serializer.data
 
