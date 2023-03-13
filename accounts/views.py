@@ -315,20 +315,12 @@ class RemoveFromCart(DestroyAPIView):
         return Response({'message': 'Recipe has been deleted.'}, status=204)
 
 
-class EmptyShoppingCart(APIView):
+class EmptyShoppingCart(DestroyAPIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, *args, **kwargs):
+    def delete(self, request, *args, **kwargs):
         if request.user.is_authenticated == False:
             return Response({'message': 'Not logged in'}, status=401)
-
-        # try:
-        #     ShoppingRecipeModel.objects.get(recipe_id=self.kwargs['recipe_id'])
-        # except ObjectDoesNotExist:
-        #     raise APIException("Not a valid recipe id.")
-        # else:
-        #     ShoppingRecipeModel.objects.filter(recipe_id=self.kwargs['recipe_id']).delete()
-        #     return Response("Deleted")
 
         ShoppingRecipeModel.objects.filter(user_id=self.request.user.id).delete()
 
