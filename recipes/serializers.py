@@ -205,13 +205,13 @@ class RecipesSerializer(serializers.ModelSerializer):
 
 class IngredientSerializer(serializers.ModelSerializer):
     recipe_id = serializers.PrimaryKeyRelatedField(queryset=RecipeModel.objects.all(), required=False)
-    quantity = serializers.IntegerField()
+    # quantity = serializers.IntegerField()
     class Meta:
         model = IngredientModel
         fields = ['id', 'recipe_id', 'name', 'quantity', 'unit']
-        extra_kwargs = {
-            'quantity': {'required': True}
-        }
+        # extra_kwargs = {
+        #     'quantity': {'required': True}
+        # }
 
 
 
