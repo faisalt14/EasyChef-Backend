@@ -119,13 +119,6 @@ class InteractionSerializer(serializers.ModelSerializer):
         interaction.save()
         recipe.update_interactions()
         return interaction
-        
-
-class RecipeMediaSerializer(serializers.ModelSerializer):
-    recipe_id = serializers.PrimaryKeyRelatedField(queryset=RecipeModel.objects.all(), required=False)
-    class Meta:
-        model = RecipeMediaModel
-        fields = ['id', 'recipe_id', 'media']
 
 class RecipeSerializer(serializers.ModelSerializer):
     cooking_time = DurationField()
