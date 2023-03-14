@@ -147,40 +147,6 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RecipeModel
-        fields = ['id', 'user_id', 'name', 'based_on', 'total_reviews', 'total_likes', 'total_favs', 'published_time',
-                  'difficulty', 'meal', 'diet', 'cuisine', 'total_time', 'cooking_time', 'prep_time', 'calculated_total_time', 'calculated_prep_time', 'calculated_cook_time', 
-                  'servings_num', 'media', 'steps', 'ingredients', 'interactions']
-
-        extra_kwargs = {
-            'media': {'write_only': True}, 
-            'steps': {'write_only': True},
-            'ingredients': {'write_only': True},
-            'interactions': {'write_only': True},
-            'name': {'required': True},
-        }
-
-class RecipeSerializer(serializers.ModelSerializer):
-    cooking_time = DurationField()
-    prep_time = DurationField()
-    total_time = DurationField() 
-    calculated_total_time = DurationField(read_only=True) 
-    calculated_prep_time = DurationField(read_only=True)
-    calculated_cook_time = DurationField(read_only=True)
-
-    media = RecipeMediaSerializer(many=True, required=True)
-    steps = StepSerializer(many=True, required=True)
-    ingredients = IngredientSerializer(many=True, required=True)
-    interactions = InteractionSerializer(many=True, required=False)
-
-    name = serializers.CharField(required=True)
-    difficulty = serializers.IntegerField(required=True, allow_null=False)
-    meal = serializers.IntegerField(required=True, allow_null=False)
-    diet = serializers.IntegerField(required=True, allow_null=False)
-    cuisine = serializers.IntegerField(required=True, allow_null=False)
-    servings_num = serializers.IntegerField(required=True, allow_null=False)
-
-    class Meta:
-        model = RecipeModel
         fields = ['id', 'user_id', 'name', 'based_on', 'total_reviews', 'total_likes', 'total_favs', 'avg_rating', 'published_time',
                   'difficulty', 'meal', 'diet', 'cuisine', 'total_time', 'cooking_time', 'prep_time', 'calculated_total_time', 'calculated_prep_time', 'calculated_cook_time', 
                   'servings_num', 'media', 'steps', 'ingredients', 'interactions']
