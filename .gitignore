@@ -1,4 +1,4 @@
-*.sqlite3
+backupDB.txt
 venv
 myenv
 uploads
