@@ -67,13 +67,15 @@ class StepSerializer(serializers.ModelSerializer):
 
 class IngredientSerializer(serializers.ModelSerializer):
     recipe_id = serializers.PrimaryKeyRelatedField(queryset=RecipeModel.objects.all(), required=False)
-    quantity = serializers.IntegerField()
+    # quantity = serializers.IntegerField()
+    name = serializers.CharField(validators=[UniqueValidator(queryset=IngredientModel.objects.all(), message='Ingredient with this name already exists.')])
+
     class Meta:
         model = IngredientModel
         fields = ['id', 'recipe_id', 'name', 'quantity', 'unit']
-        extra_kwargs = {
-            'quantity': {'required': True}
-        }
+        # extra_kwargs = {
+        #     'quantity': {'required': True}
+        # }
 
 class ReviewMediaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -84,8 +86,8 @@ class InteractionSerializer(serializers.ModelSerializer):
     media = ReviewMediaSerializer(many=True, read_only=False, required=False)
     
     class Meta:
-        model = InteractionModel, IngredientModel, RecipeMediaModel
-        fields = ['id', 'recipe_id', 'user_id', 'like', 'favourite', 'rating', 'comment', 'published_time']
+        model = InteractionModel
+        fields = ['id', 'recipe_id', 'user_id', 'like', 'favourite', 'rating', 'comment', 'published_time', 'media']
     
     def create(self, validated_data, user, recipe):
         interaction = InteractionModel.objects.create()
@@ -170,18 +172,6 @@ class RecipesSerializer(serializers.ModelSerializer):
             serializer = RecipeMediaSerializer(media)
             return serializer.data['media']
         return None
-
-class IngredientSerializer(serializers.ModelSerializer):
-    recipe_id = serializers.PrimaryKeyRelatedField(queryset=RecipeModel.objects.all(), required=False)
-    # quantity = serializers.IntegerField()
-    name = serializers.CharField(validators=[UniqueValidator(queryset=IngredientModel.objects.all(), message='Ingredient with this name already exists.')])
-
-    class Meta:
-        model = IngredientModel
-        fields = ['id', 'recipe_id', 'name', 'quantity', 'unit']
-        # extra_kwargs = {
-        #     'quantity': {'required': True}
-        # }
 
 
 
