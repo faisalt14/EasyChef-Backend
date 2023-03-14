@@ -85,7 +85,7 @@ class InteractionSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = InteractionModel, IngredientModel, RecipeMediaModel
-        fields = ['id', 'recipe_id', 'user_id', 'like', 'favourite', 'rating', 'comment', 'published_time', 'media']
+        fields = ['id', 'recipe_id', 'user_id', 'like', 'favourite', 'rating', 'comment', 'published_time']
     
     def create(self, validated_data, user, recipe):
         interaction = InteractionModel.objects.create()
