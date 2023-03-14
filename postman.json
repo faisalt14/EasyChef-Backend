@@ -1,0 +1,1665 @@
+{
+	"info": {
+		"_postman_id": "875dc138-b11c-4c29-bbdb-5c9a43bcb0f6",
+		"name": "EasyChef",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "19991692"
+	},
+	"item": [
+		{
+			"name": "Recipe Creation",
+			"item": [
+				{
+					"name": "Add Recipe Media",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "media",
+									"type": "file",
+									"src": "/C:/Users/ayesh/Downloads/Create a New Data Initiative (32).png"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/recipes/create-recipes/add-media/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"recipes",
+								"create-recipes",
+								"add-media",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Ingredient",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Beef Jerky",
+									"type": "text"
+								},
+								{
+									"key": "quantity",
+									"value": "0",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/recipes/ingredients/create/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"recipes",
+								"ingredients",
+								"create",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Recipe",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Banana Bread 5.4",
+									"type": "text"
+								},
+								{
+									"key": "difficulty",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "meal",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "diet",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "cuisine",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "total_time",
+									"value": "00:30:00",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "cooking_time",
+									"value": "00:20:00",
+									"type": "text"
+								},
+								{
+									"key": "prep_time",
+									"value": "00:05:00",
+									"type": "text"
+								},
+								{
+									"key": "servings_num",
+									"value": "2",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "media",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "steps",
+									"value": "1, 2",
+									"type": "text"
+								},
+								{
+									"key": "ingredients",
+									"value": "{\"1\": [2, \"cups\"], \"2\": [5, \"cups\"]}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/recipes/create-recipe/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"recipes",
+								"create-recipe",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Step",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "cooking_time",
+									"value": "00:02:00",
+									"type": "text"
+								},
+								{
+									"key": "prep_time",
+									"value": "00:02:00",
+									"type": "text"
+								},
+								{
+									"key": "instructions",
+									"value": "instruct 2",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/recipes/steps/create/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"recipes",
+								"steps",
+								"create",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Step Media",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "step_id",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "media",
+									"type": "file",
+									"src": "/C:/Users/ayesh/Downloads/Screenshot 2023-02-03 104334.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/recipes/steps/create/media/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"recipes",
+								"steps",
+								"create",
+								"media",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Recipe Details",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Banana bread remixed :D",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "difficulty",
+									"value": "1",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "meal",
+									"value": "2",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "diet",
+									"value": "4",
+									"type": "text"
+								},
+								{
+									"key": "cuisine",
+									"value": "2",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "cooking_time",
+									"value": "30",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "prep_time",
+									"value": "3",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "servings_num",
+									"value": "2",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "media",
+									"value": "8, 9",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "steps",
+									"value": "6",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "ingredients",
+									"value": "4, 5",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/recipes/19/details/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"recipes",
+								"19",
+								"details",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remix Recipe",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Banana bread remixed :Dagaimmm",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "difficulty",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "meal",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "diet",
+									"value": "4",
+									"type": "text"
+								},
+								{
+									"key": "cuisine",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "cooking_time",
+									"value": "00:10:00",
+									"type": "text"
+								},
+								{
+									"key": "prep_time",
+									"value": "00:10:00",
+									"type": "text"
+								},
+								{
+									"key": "servings_num",
+									"value": "7",
+									"type": "text"
+								},
+								{
+									"key": "media",
+									"value": "1",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "steps",
+									"value": "1, 2",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "ingredients",
+									"value": "{\"1\": [4, \"steps\"], \"2\": [4, \"cups\"]}",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/recipes/2/remix-recipe/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"recipes",
+								"2",
+								"remix-recipe",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Recipe",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/recipes/100/delete/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"recipes",
+								"100",
+								"delete",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Recipe",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "User",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "difficulty",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "meal",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "diet",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "cuisine",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "cooking_time",
+									"value": "00:00:00",
+									"type": "text"
+								},
+								{
+									"key": "prep_time",
+									"value": "00:00:00",
+									"type": "text"
+								},
+								{
+									"key": "servings_num",
+									"value": "4",
+									"type": "text"
+								},
+								{
+									"key": "media",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "steps",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "ingredients",
+									"value": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/recipes/10/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"recipes",
+								"10",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "My Recipes Page",
+			"item": [
+				{
+					"name": "Favourited Recipe",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/accounts/myrecipes/favourite-recipes/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"accounts",
+								"myrecipes",
+								"favourite-recipes",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Recent Recipes",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/accounts/myrecipes/recent-recipes/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"accounts",
+								"myrecipes",
+								"recent-recipes",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Published Recipes",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/accounts/myrecipes/published-recipes/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"accounts",
+								"myrecipes",
+								"published-recipes",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Shopping Cart Page",
+			"item": [
+				{
+					"name": "Combined List",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/accounts/combined-list/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"accounts",
+								"combined-list",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Individual Shopping List",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/accounts/shopping-list/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"accounts",
+								"shopping-list",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Servings Number",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "servings_num",
+									"value": "10",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/accounts/shopping-list/update-serving-size/3/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"accounts",
+								"shopping-list",
+								"update-serving-size",
+								"3",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove From Shopping List",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/accounts/shopping-list/remove/2/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"accounts",
+								"shopping-list",
+								"remove",
+								"2",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Shopping Cart",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/accounts/shopping-list/clear/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"accounts",
+								"shopping-list",
+								"clear",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Interactions",
+			"item": [
+				{
+					"name": "Add a New Interaction",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "rating",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "comment",
+									"value": "amazing food",
+									"type": "text"
+								},
+								{
+									"key": "like",
+									"value": "True",
+									"type": "text"
+								},
+								{
+									"key": "favourite",
+									"value": "True",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/recipes/2/details/interaction/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"recipes",
+								"2",
+								"details",
+								"interaction",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Interaction Creation and Editing",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/recipes/2/details/interaction/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"recipes",
+								"2",
+								"details",
+								"interaction",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Interaction Media Creation",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "media",
+									"type": "file",
+									"src": "/C:/Users/ayesh/Downloads/Create a New Data Initiative (31).png"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/recipes/interactions/11/add-media/?media",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"recipes",
+								"interactions",
+								"11",
+								"add-media",
+								""
+							],
+							"query": [
+								{
+									"key": "media",
+									"value": null
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjc4NzE5MjE1LCJpYXQiOjE2Nzg3MTU2MTUsImp0aSI6ImJmNDQ1YjYxNjMwZDQwZmQ4MjY2MmU2Njg4NTI3ZDQ4IiwidXNlcl9pZCI6M30.oYJBlCkZt4k9yUYSPYLhJERN5VuPUjrFuhMbx824t9g",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "User Requests",
+			"item": [
+				{
+					"name": "User Registration",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "aaa",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "1234",
+									"type": "text"
+								},
+								{
+									"key": "password2",
+									"value": "1234",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "a@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "first_name",
+									"value": "A",
+									"type": "text"
+								},
+								{
+									"key": "last_name",
+									"value": "a",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/accounts/signup/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"accounts",
+								"signup",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User Login",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "aaa",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "123",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/accounts/login/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"accounts",
+								"login",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User Logout",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "Edit User Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "password",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "password2",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "first_name",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "last_name",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "phone_num",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "avatar",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/accounts/profile/edit/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"accounts",
+								"profile",
+								"edit",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Generate Token",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "admin",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/accounts/api/token/?username=john&password=test1234567!",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"accounts",
+						"api",
+						"token",
+						""
+					],
+					"query": [
+						{
+							"key": "username",
+							"value": "john"
+						},
+						{
+							"key": "password",
+							"value": "test1234567!"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Home Page",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/recipes/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"recipes",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Recipe Search",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/recipes/search/?category=Recipe",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"recipes",
+						"search",
+						""
+					],
+					"query": [
+						{
+							"key": "cuisine",
+							"value": "2",
+							"disabled": true
+						},
+						{
+							"key": "category",
+							"value": "Recipe"
+						},
+						{
+							"key": "cooking_time",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "meal",
+							"value": "1",
+							"disabled": true
+						},
+						{
+							"key": "query",
+							"value": "i",
+							"disabled": true
+						},
+						{
+							"key": "diet",
+							"value": "3",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Autocomplete",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "query",
+							"value": "bread",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/recipes/autocomplete/?query=&category",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"recipes",
+						"autocomplete",
+						""
+					],
+					"query": [
+						{
+							"key": "query",
+							"value": ""
+						},
+						{
+							"key": "category",
+							"value": null
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All Recipes",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "query",
+							"value": "bread",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/recipes/all-recipes/ ",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"recipes",
+						"all-recipes",
+						" "
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Popular Recipes",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "filter",
+							"value": "bread",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/recipes/popular/total_reviews/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"recipes",
+						"popular",
+						"total_reviews",
+						""
+					],
+					"query": [
+						{
+							"key": "filter",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjc4NTM3OTQwLCJpYXQiOjE2Nzg1MzQzNDAsImp0aSI6ImZmOTEyOWFiZWI1ZDRjZWFiNjJmMmYwZjUxMWVlNWM5IiwidXNlcl9pZCI6Nn0.HzA-9cU805t1uVbv3LOdXEV7MYjspXD23tu2-OeeG5s",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "accessToken",
+			"value": "\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjc4NDA1Mjc1LCJpYXQiOjE2Nzg0MDQ5NzUsImp0aSI6IjZmM2FkMTZhMDM1NTRmYmNhYzE3NTg4NGUwYzRhMjg5IiwidXNlcl9pZCI6Mn0.rad5OF1WOq8vgEVS6zlkmIaCk4m8yAv840pomlMNcWk\""
+		}
+	]
+}
