@@ -71,9 +71,6 @@ class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = IngredientModel
         fields = ['id', 'recipe_id', 'name', 'quantity', 'unit']
-        extra_kwargs = {
-            'quantity': {'required': True}
-        }
 
 class ReviewMediaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -170,19 +167,6 @@ class RecipesSerializer(serializers.ModelSerializer):
             serializer = RecipeMediaSerializer(media)
             return serializer.data['media']
         return None
-
-class IngredientSerializer(serializers.ModelSerializer):
-    recipe_id = serializers.PrimaryKeyRelatedField(queryset=RecipeModel.objects.all(), required=False)
-    # quantity = serializers.IntegerField()
-    name = serializers.CharField(validators=[UniqueValidator(queryset=IngredientModel.objects.all(), message='Ingredient with this name already exists.')])
-
-    class Meta:
-        model = IngredientModel
-        fields = ['id', 'recipe_id', 'name', 'quantity', 'unit']
-        # extra_kwargs = {
-        #     'quantity': {'required': True}
-        # }
-
 
 
 # class InteractedRecipesSerializer(serializers.ModelSerializer):
