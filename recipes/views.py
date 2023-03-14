@@ -12,7 +12,7 @@ from rest_framework import status
 from recipes.models import RecipeModel, IngredientModel, StepModel, StepMediaModel, RecipeMediaModel, InteractionModel, ReviewMediaModel
 from recipes.serializers import RecipesSerializer, RecipeSerializer, IngredientSerializer, StepSerializer, RecipeMediaSerializer, StepMediaSerializer, ReviewMediaSerializer, InteractionSerializer
 from accounts.models import User
-from accounts.serializers import UserDetailSerializer
+from accounts.serializers import UserDisplaySerializer
 
 # Create your views here.
 
@@ -802,7 +802,7 @@ class AutocompleteView(ListAPIView):
             self.serializer_class = RecipesSerializer
             queryset = RecipeModel.objects.all()
         elif category == 2:
-            self.serializer_class = UserDetailSerializer
+            self.serializer_class = UserDisplaySerializer
             queryset = User.objects.all()
             queryset = queryset.filter(username__icontains=search_query)
         else:

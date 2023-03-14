@@ -19,6 +19,10 @@ class UserDetailSerializer(serializers.ModelSerializer):
         user.save()
         return Response({'message': 'success'}, status=200)
 
+class UserDisplaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name']
 
 class UserLoginSerializer(serializers.Serializer):
     class Meta:
