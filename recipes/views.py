@@ -12,7 +12,7 @@ from rest_framework import status
 from recipes.models import RecipeModel, IngredientModel, StepModel, StepMediaModel, RecipeMediaModel, InteractionModel, ReviewMediaModel
 from recipes.serializers import RecipesSerializer, RecipeSerializer, IngredientSerializer, StepSerializer, RecipeMediaSerializer, StepMediaSerializer, ReviewMediaSerializer, InteractionSerializer
 from accounts.models import User
-from accounts.serializers import UserDisplaySerializer
+from accounts.serializers import UserDetailSerializer
 
 # Create your views here.
 
@@ -182,6 +182,11 @@ class RemixRecipeView(APIView):
                 setattr(new_recipe, key, value)
 
         # Save the new recipe instance
+        setattr(new_recipe, 'total_favs', 0)
+        setattr(new_recipe, 'total_likes', 0)
+        setattr(new_recipe, 'total_reviews', 0)
+        setattr(new_recipe, 'avg_rating', 0)
+
         new_recipe.save()
 
         # Return the new recipe data
@@ -802,7 +807,7 @@ class AutocompleteView(ListAPIView):
             self.serializer_class = RecipesSerializer
             queryset = RecipeModel.objects.all()
         elif category == 2:
-            self.serializer_class = UserDisplaySerializer
+            self.serializer_class = UserDetailSerializer
             queryset = User.objects.all()
             queryset = queryset.filter(username__icontains=search_query)
         else:

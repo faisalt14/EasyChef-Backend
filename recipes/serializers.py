@@ -181,7 +181,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RecipeModel
-        fields = ['id', 'user_id', 'name', 'based_on', 'total_reviews', 'total_likes', 'total_favs', 'published_time',
+        fields = ['id', 'user_id', 'name', 'based_on', 'total_reviews', 'total_likes', 'total_favs', 'avg_rating', 'published_time',
                   'difficulty', 'meal', 'diet', 'cuisine', 'total_time', 'cooking_time', 'prep_time', 'calculated_total_time', 'calculated_prep_time', 'calculated_cook_time', 
                   'servings_num', 'media', 'steps', 'ingredients', 'interactions']
         extra_kwargs = {
