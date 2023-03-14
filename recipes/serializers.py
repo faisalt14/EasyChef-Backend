@@ -189,7 +189,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             'steps': {'write_only': True},
             'ingredients': {'write_only': True},
             'interactions': {'write_only': True},
-            'name': {'required': True},
+            'name': {'required': True}
         }
 
 class RecipesSerializer(serializers.ModelSerializer):

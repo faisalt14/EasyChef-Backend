@@ -3,7 +3,7 @@ from datetime import timedelta
 from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
 from rest_framework.exceptions import APIException
-from rest_framework.generics import RetrieveAPIView, CreateAPIView, ListAPIView, DestroyAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import RetrieveAPIView, UpdateAPIView, CreateAPIView, ListAPIView, DestroyAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -298,34 +298,57 @@ class CreateRecipeView(RetrieveUpdateAPIView, CreateAPIView):
         return Response(recipe_serializer.data, status=status.HTTP_201_CREATED)
 
 
-    def update(self, request, *args, **kwargs):
-        # get the instance of the model we are updating
-        instance = get_object_or_404(RecipeModel, id=kwargs['recipe_id'])
-        if self.request.user != instance.user_id:
-            return Response('Forbidden', status=403)
+    # def update(self, request, *args, **kwargs):
+    #     # get the instance of the model we are updating
+    #     print("request data", request.data)
 
-        # calculate the ratio of new servings to old servings
-        #old_servings = instance.servings_num
-        #new_servings = request.data.get('servings_num', old_servings)
-        #ratio = int(new_servings) / int(old_servings)
+    #     instance = get_object_or_404(RecipeModel, id=kwargs['recipe_id'])
+    #     if self.request.user != instance.user_id:
+    #         return Response('Forbidden', status=403)
 
-        # update the instance from the serializer and save it to the database
-        # partial = True allows us to retain data that was already there (hence the editing)
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
+    #     # calculate the ratio of new servings to old servings
+    #     #old_servings = instance.servings_num
+    #     #new_servings = request.data.get('servings_num', old_servings)
+    #     #ratio = int(new_servings) / int(old_servings)
+
+    #     # update the instance from the serializer and save it to the database
+    #     # partial = True allows us to retain data that was already there (hence the editing)
+    #     serializer = self.get_serializer(instance, data=request.data, partial=True)
+    #     serializer.is_valid(raise_exception=True)
+    #     recipe = serializer.save(user=self.request.user)
+
+    #     # adjust ingredient quantities based on the new ratio
+    #     #for ingredient_instance in recipe.ingredients.all():
+    #         # calculate the new quantity based on the new number of servings
+    #     #    servings_num = int(request.data.get('servings_num', recipe.servings_num))
+    #     #    new_quantity = int(round(ingredient_instance.quantity / recipe.servings_num * servings_num))
+
+    #         # update the ingredient quantity
+    #     #    ingredient_instance.quantity = new_quantity
+    #     #    ingredient_instance.save()
+
+    #     return Response(serializer.data)
+
+class RecipeUpdateView(UpdateAPIView):
+    queryset = RecipeModel.objects.all()
+    serializer_class = RecipeSerializer
+
+    def patch(self, request, *args, **kwargs):
+        recipe_id = kwargs.get('recipe_id')
+        recipe = get_object_or_404(self.get_queryset(), id=recipe_id)
+
+        user_id = request.user.id
+        if recipe.user_id != user_id:
+            return Response(
+                {'error': 'You are not authorized to perform this action.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        serializer = self.get_serializer(recipe, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
-        recipe = serializer.save(user=self.request.user)
+        serializer.save()
 
-        # adjust ingredient quantities based on the new ratio
-        #for ingredient_instance in recipe.ingredients.all():
-            # calculate the new quantity based on the new number of servings
-        #    servings_num = int(request.data.get('servings_num', recipe.servings_num))
-        #    new_quantity = int(round(ingredient_instance.quantity / recipe.servings_num * servings_num))
-
-            # update the ingredient quantity
-        #    ingredient_instance.quantity = new_quantity
-        #    ingredient_instance.save()
-
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class CreateStepView(CreateAPIView):
     permission_classes = [IsAuthenticated]

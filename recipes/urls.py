@@ -1,5 +1,5 @@
 from django.urls import path
-from recipes.views import AllRecipes, PopularRecipes, SearchView, HomeView, CreateIngredientView, CreateRecipeView, RemixRecipeView, CreateStepView, RecipeDetailView, AddStepMedia, AddRecipeMedia, AddInteractionMedia, InteractionView, DeleteRecipe, AutocompleteView
+from recipes.views import AllRecipes, RecipeUpdateView, PopularRecipes, SearchView, HomeView, CreateIngredientView, CreateRecipeView, RemixRecipeView, CreateStepView, RecipeDetailView, AddStepMedia, AddRecipeMedia, AddInteractionMedia, InteractionView, DeleteRecipe, AutocompleteView
 
 urlpatterns = [
     path('all-recipes/', AllRecipes.as_view()),
@@ -8,7 +8,7 @@ urlpatterns = [
     path('', HomeView.as_view()),
     path('autocomplete/', AutocompleteView.as_view()),
     path('create-recipe/', CreateRecipeView.as_view()),
-    path('<int:recipe_id>/', CreateRecipeView.as_view()), 
+    path('<int:recipe_id>/', RecipeUpdateView.as_view()), 
     path('<int:recipe_id>/remix-recipe/', RemixRecipeView.as_view()),
     path('steps/create/', CreateStepView.as_view()),
     path('steps/create/media/', AddStepMedia.as_view()),
