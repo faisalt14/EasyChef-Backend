@@ -334,15 +334,11 @@ class RecipeUpdateView(UpdateAPIView):
     serializer_class = RecipeSerializer
 
     def patch(self, request, *args, **kwargs):
-        recipe_id = kwargs.get('recipe_id')
-        recipe = get_object_or_404(self.get_queryset(), id=recipe_id)
+        recipe = get_object_or_404(RecipeModel, id=kwargs['recipe_id'])
 
-        user_id = request.user.id
-        if recipe.user_id != user_id:
-            return Response(
-                {'error': 'You are not authorized to perform this action.'},
-                status=status.HTTP_403_FORBIDDEN
-            )
+        # Check if the authenticated user is the owner of the recipe
+        if request.user != recipe.user_id:
+            return Response({'message': 'You do not have permission to edit this recipe.'}, status=403)
 
         serializer = self.get_serializer(recipe, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
